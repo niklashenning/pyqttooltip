@@ -1,1 +1,1 @@
-from .tooltip import Tooltip, TooltipPlacement, TooltipTrigger
+from .tooltip import Tooltip, TooltipPlacement

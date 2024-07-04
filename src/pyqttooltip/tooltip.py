@@ -1,7 +1,8 @@
 from qtpy.QtWidgets import QWidget
-from qtpy.QtCore import Qt, Signal, QMargins, QPoint, QSize
+from qtpy.QtCore import Qt, Signal, QMargins, QPoint
 from qtpy.QtGui import QColor, QFont
-from .enums import TooltipPlacement, TooltipTrigger
+from .tooltip_triangle import TooltipTriangle
+from .enums import TooltipPlacement
 
 
 class Tooltip(QWidget):
@@ -22,10 +23,11 @@ class Tooltip(QWidget):
         # Init attributes
         self.__widget = widget
         self.__text = text
+        self.__duration = 0
         self.__placement = TooltipPlacement.AUTO
         self.__fallback_placement = []
         self.__triangle_enabled = True
-        self.__trigger = TooltipTrigger.HOVER
+        self.__triangle_size = 7
         self.__offset = QPoint(0, 0)
         self.__showing_delay = 250
         self.__hiding_delay = 250
@@ -34,17 +36,45 @@ class Tooltip(QWidget):
         self.__text_centering_enabled = True
         self.__showing_on_disabled_widgets = False
         self.__border_radius = 0
+        self.__border_width = 0
         self.__background_color = QColor('#000000')
         self.__text_color = QColor('#FFFFFF')
+        self.__border_color = QColor('#403E41')
         self.__font = QFont('Arial', 9)
         self.__margins = QMargins(0, 0, 0, 0)
 
-        # Window settings
+        # Widget settings
         self.setWindowFlags(Qt.WindowType.ToolTip |
-                            Qt.WindowType.CustomizeWindowHint |
                             Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+
+        # Create tooltip body widget
+        self.tooltip_body = QWidget(self)
+        self.tooltip_body.setStyleSheet('background: #000000; '
+                                        'border-radius: 3px; '
+                                        'border: 1px solid #403E41;')   # TEMPORARY
+
+        # Create tooltip triangle
+        self.tooltip_triangle = TooltipTriangle(self)
+        self.tooltip_triangle.move(40, 29)  # TEMPORARY
+
+        # Install event filter on widget
+        if self.__widget is not None:
+            self.__widget.installEventFilter(self)
+
+    def eventFilter(self, watched, event):
+        if watched == self.__widget:
+            # Mouse enters widget
+            if event.type() == event.Type.HoverEnter:
+                self.show()
+                widget_pos = self.__widget.parent().mapToGlobal(self.__widget.pos())
+                self.move(widget_pos.x(), widget_pos.y() - self.height())
+            # Mouse leaves widget
+            elif event.type() == event.Type.HoverLeave:
+                self.hide()
+        return False
 
     def getWidget(self) -> QWidget:
         pass
@@ -76,10 +106,10 @@ class Tooltip(QWidget):
     def setTriangleEnabled(self, enabled: bool):
         pass
 
-    def getTrigger(self) -> TooltipTrigger:
+    def getTriangleSize(self) -> int:
         pass
 
-    def setTrigger(self, trigger: TooltipTrigger):
+    def setTriangleSize(self, size: int):
         pass
 
     def getOffset(self) -> QPoint:
@@ -185,25 +215,4 @@ class Tooltip(QWidget):
         pass
 
     def setMarginBottom(self, margin: int):
-        pass
-
-    def setFixedSize(self, size: QSize):
-        pass
-
-    def setFixedWidth(self, width: int):
-        pass
-
-    def setFixedHeight(self, height: int):
-        pass
-
-    def setMinimumWidth(self, minimum_width: int):
-        pass
-
-    def setMaximumWidth(self, maximum_width: int):
-        pass
-
-    def setMinimumHeight(self, minimum_height: int):
-        pass
-
-    def setMaximumHeight(self, maximum_height: int):
         pass

@@ -7,8 +7,3 @@ class TooltipPlacement(Enum):
     RIGHT = 2
     TOP = 3
     BOTTOM = 4
-
-
-class TooltipTrigger(Enum):
-    HOVER = 0
-    FOCUS = 1
