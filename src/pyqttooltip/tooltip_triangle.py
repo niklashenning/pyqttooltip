@@ -1,6 +1,7 @@
+import math
 from qtpy.QtWidgets import QWidget
 from qtpy.QtGui import QPainter, QPen, QPainterPath
-from qtpy.QtCore import Qt
+from qtpy.QtCore import Qt, QPoint
 from .tooltip_interface import TooltipInterface
 
 
@@ -22,7 +23,6 @@ class TooltipTriangle(QWidget):
         background_color = self.tooltip.getBackgroundColor()
         border_color = self.tooltip.getBorderColor()
         border_width = self.tooltip.getBorderWidth()
-        pen = Qt.PenStyle.NoPen if border_width < 1 else QPen(border_color, border_width)
 
         painter = QPainter()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -33,13 +33,20 @@ class TooltipTriangle(QWidget):
         path.lineTo(size, size)
         path.lineTo(size * 2, 0)
 
-        painter.setPen(pen)
+        painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(background_color)
         painter.drawPath(path)
+
+        if border_width > 0:
+            painter.setPen(QPen(border_color, border_width))
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            painter.drawLine(QPoint(0, 0), QPoint(size, size))
+            painter.drawLine(QPoint(size * 2, 0), QPoint(size, size))
 
         painter.end()
 
     def update(self):
         size = self.tooltip.getTriangleSize()
-        self.setFixedSize(size * 2, size + 1)
+        border_width = self.tooltip.getBorderWidth()
+        self.setFixedSize(size * 2, size + math.ceil(border_width / 2))
         super().update()

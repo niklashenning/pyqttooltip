@@ -55,11 +55,11 @@ class Tooltip(TooltipInterface):
         self.tooltip_body = QWidget(self)
         self.tooltip_body.setStyleSheet('background: #000000; '
                                         'border-radius: 3px; '
-                                        'border: 1px solid #403E41;')   # TEMPORARY
+                                        'border: 0px solid #403E41;')   # TEMPORARY
 
         # Create tooltip triangle
         self.tooltip_triangle = TooltipTriangle(self)
-        self.tooltip_triangle.move(40, 29)  # TEMPORARY
+        self.tooltip_triangle.move(40, self.tooltip_body.height() - self.__border_width)  # TEMPORARY
 
         # Install event filter on widget
         if self.__widget is not None:
