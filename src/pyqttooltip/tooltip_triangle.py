@@ -1,36 +1,45 @@
 from qtpy.QtWidgets import QWidget
-from qtpy.QtGui import QColor, QPainter, QBrush, QPen, QPainterPath
+from qtpy.QtGui import QPainter, QPen, QPainterPath
+from qtpy.QtCore import Qt
+from .tooltip_interface import TooltipInterface
 
 
 class TooltipTriangle(QWidget):
 
-    def __init__(self, parent: QWidget):
+    def __init__(self, tooltip: TooltipInterface):
         """Create a new TooltipTriangle instance
 
-        :param parent: parent of the widget
+        :param tooltip: tooltip the triangle belongs to
         """
 
-        super(TooltipTriangle, self).__init__(parent)
+        super(TooltipTriangle, self).__init__(tooltip)
 
-        self.size = 7
-        self.background_color = QColor('#000000')
-        self.border_color = QColor('#403E41')
-        self.border_width = 1
-
-        self.setFixedSize(self.size * 2, self.size + 1)
+        self.tooltip = tooltip
+        self.update()
 
     def paintEvent(self, event):
+        size = self.tooltip.getTriangleSize()
+        background_color = self.tooltip.getBackgroundColor()
+        border_color = self.tooltip.getBorderColor()
+        border_width = self.tooltip.getBorderWidth()
+        pen = Qt.PenStyle.NoPen if border_width < 1 else QPen(border_color, border_width)
+
         painter = QPainter()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.begin(self)
 
         path = QPainterPath()
         path.moveTo(0, 0)
-        path.lineTo(self.size, self.size)
-        path.lineTo(self.size * 2, 0)
+        path.lineTo(size, size)
+        path.lineTo(size * 2, 0)
 
-        painter.setPen(QPen(self.border_color))
-        painter.setBrush(QBrush(self.background_color))
+        painter.setPen(pen)
+        painter.setBrush(background_color)
         painter.drawPath(path)
 
         painter.end()
+
+    def update(self):
+        size = self.tooltip.getTriangleSize()
+        self.setFixedSize(size * 2, size + 1)
+        super().update()

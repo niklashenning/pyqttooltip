@@ -1,11 +1,12 @@
 from qtpy.QtWidgets import QWidget
 from qtpy.QtCore import Qt, Signal, QMargins, QPoint
 from qtpy.QtGui import QColor, QFont
+from .tooltip_interface import TooltipInterface
 from .tooltip_triangle import TooltipTriangle
 from .enums import TooltipPlacement
 
 
-class Tooltip(QWidget):
+class Tooltip(TooltipInterface):
 
     # Signals
     shown = Signal()
@@ -77,142 +78,160 @@ class Tooltip(QWidget):
         return False
 
     def getWidget(self) -> QWidget:
-        pass
+        return self.__widget
 
     def setWidget(self, widget: QWidget):
-        pass
+        self.__widget = widget
 
     def getText(self) -> str:
-        pass
+        return self.__text
 
     def setText(self, text: str):
-        pass
+        self.__text = text
+
+    def getDuration(self) -> int:
+        return self.__duration
+
+    def setDuration(self, duration: int):
+        self.__duration = duration
 
     def getPlacement(self) -> TooltipPlacement:
-        pass
+        return self.__placement
 
     def setPlacement(self, placement: TooltipPlacement):
-        pass
+        self.__placement = placement
 
     def getFallbackPlacement(self) -> list[TooltipPlacement]:
-        pass
+        return self.__fallback_placement
 
     def setFallbackPlacement(self, fallback_placement: list[TooltipPlacement]):
-        pass
+        self.__fallback_placement = fallback_placement
 
     def isTriangleEnabled(self) -> bool:
-        pass
+        return self.__triangle_enabled
 
     def setTriangleEnabled(self, enabled: bool):
-        pass
+        self.__triangle_enabled = enabled
 
     def getTriangleSize(self) -> int:
-        pass
+        return self.__triangle_size
 
     def setTriangleSize(self, size: int):
-        pass
+        self.__triangle_enabled = size
 
     def getOffset(self) -> QPoint:
-        pass
+        return self.__offset
 
-    def setOffset(self, offset_x: int, offset_y: int):
-        pass
+    def setOffset(self, offset: QPoint):
+        self.__offset = offset
 
     def getOffsetX(self) -> int:
-        pass
+        return self.__offset.x()
 
     def setOffsetX(self, offset: int):
-        pass
+        self.setOffset(QPoint(offset, self.__offset.y()))
 
     def getOffsetY(self) -> int:
-        pass
+        return self.__offset.y()
 
     def setOffsetY(self, offset: int):
-        pass
+        self.setOffset(QPoint(self.__offset.x(), offset))
 
     def getShowingDelay(self) -> int:
-        pass
+        return self.__showing_delay
 
     def setShowingDelay(self, delay: int):
-        pass
+        self.__showing_delay = delay
 
     def getHidingDelay(self) -> int:
-        pass
+        return self.__hiding_delay
 
     def setHidingDelay(self, delay: int):
-        pass
+        self.__hiding_delay = delay
 
     def getFadeInDuration(self) -> int:
-        pass
+        return self.__fade_in_duration
 
     def setFadeInDuration(self, duration: int):
-        pass
+        self.__fade_in_duration = duration
 
     def getFadeOutDuration(self) -> int:
-        pass
+        return self.__fade_out_duration
 
     def setFadeOutDuration(self, duration: int):
-        pass
+        self.__fade_in_duration = duration
 
     def isTextCenteringEnabled(self) -> int:
-        pass
+        return self.__text_centering_enabled
 
     def setTextCenteringEnabled(self, enabled: bool):
-        pass
+        self.__text_centering_enabled = enabled
 
-    def isShowOnDisabledWidgets(self) -> bool:
-        pass
+    def isShowingOnDisabledWidgets(self) -> bool:
+        return self.__showing_on_disabled_widgets
 
-    def setShowOnDisabledWidgets(self, enabled: bool):
-        pass
+    def setShowingOnDisabledWidgets(self, enabled: bool):
+        self.__showing_on_disabled_widgets = enabled
 
     def getBorderRadius(self) -> int:
-        pass
+        return self.__border_radius
 
     def setBorderRadius(self, border_radius: int):
-        pass
+        self.__border_radius = border_radius
 
-    def getOpacity(self) -> float:
-        pass
+    def getBorderWidth(self) -> int:
+        return self.__border_width
 
-    def setOpacity(self, opacity: float):
-        pass
+    def setBorderWidth(self, width: int):
+        self.__border_width = width
 
     def getBackgroundColor(self) -> QColor:
-        pass
+        return self.__background_color
 
     def setBackgroundColor(self, color: QColor):
-        pass
+        self.__background_color = color
 
     def getTextColor(self) -> QColor:
-        pass
+        return self.__text_color
 
     def setTextColor(self, color: QColor):
-        pass
+        self.__text_color = color
+
+    def getBorderColor(self) -> QColor:
+        return self.__border_color
+
+    def setBorderColor(self, color: QColor):
+        self.__border_color = color
+
+    def getOpacity(self) -> float:
+        return self.windowOpacity()
+
+    def setOpacity(self, opacity: float):
+        self.setWindowOpacity(opacity)
 
     def font(self) -> QFont:
-        pass
+        return self.getFont()
 
     def getFont(self) -> QFont:
-        pass
+        return self.__font
 
     def setFont(self, font: QFont):
-        pass
+        self.__font = font
 
     def getMargins(self) -> QMargins:
-        pass
+        return self.__margins
 
     def setMargins(self, margins: QMargins):
-        pass
+        self.__margins = margins
 
     def setMarginLeft(self, margin: int):
-        pass
+        self.__margins.setLeft(margin)
 
     def setMarginTop(self, margin: int):
-        pass
+        self.__margins.setTop(margin)
 
     def setMarginRight(self, margin: int):
-        pass
+        self.__margins.setRight(margin)
 
     def setMarginBottom(self, margin: int):
-        pass
+        self.__margins.setBottom(margin)
