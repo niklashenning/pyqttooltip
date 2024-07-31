@@ -52,14 +52,13 @@ class Tooltip(TooltipInterface):
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         # Create tooltip body widget
-        self.tooltip_body = QWidget(self)
-        self.tooltip_body.setStyleSheet('background: #000000; '
-                                        'border-radius: 3px; '
-                                        'border: 0px solid #403E41;')   # TEMPORARY
+        self.__tooltip_body = QWidget(self)
+        self.__tooltip_body.setStyleSheet('background: #000000; '
+                                          'border-radius: 3px; '
+                                          'border: 0px solid #403E41;')   # TEMPORARY
 
         # Create tooltip triangle
-        self.tooltip_triangle = TooltipTriangle(self)
-        self.tooltip_triangle.move(40, self.tooltip_body.height() - self.__border_width)  # TEMPORARY
+        self.__tooltip_triangle = TooltipTriangle(self)
 
         # Install event filter on widget
         if self.__widget is not None:
@@ -69,9 +68,8 @@ class Tooltip(TooltipInterface):
         if watched == self.__widget:
             # Mouse enters widget
             if event.type() == event.Type.HoverEnter:
+                self.__update_ui()
                 self.show()
-                widget_pos = self.__widget.parent().mapToGlobal(self.__widget.pos())
-                self.move(widget_pos.x(), widget_pos.y() - self.height())
             # Mouse leaves widget
             elif event.type() == event.Type.HoverLeave:
                 self.hide()
@@ -235,3 +233,21 @@ class Tooltip(TooltipInterface):
 
     def setMarginBottom(self, margin: int):
         self.__margins.setBottom(margin)
+
+    def __update_ui(self):
+        # TEMPORARY
+        body_width = 140
+        body_height = 30
+        self.__tooltip_body.setFixedSize(body_width, body_height)
+        width = body_width
+        height = body_height + self.__tooltip_triangle.height() - self.__border_width
+        self.setFixedSize(width, height)
+
+        widget_pos = self.__widget.parent().mapToGlobal(self.__widget.pos())
+        tooltip_pos_x = widget_pos.x() + int(self.__widget.width() / 2) - int(width / 2)
+        tooltip_pos_y = widget_pos.y() - height
+        self.move(tooltip_pos_x, tooltip_pos_y)
+
+        tooltip_triangle_pos_x = int(width / 2) - self.__triangle_size
+        tooltip_triangle_pos_y = self.__tooltip_body.height() - self.__border_width
+        self.__tooltip_triangle.move(tooltip_triangle_pos_x, tooltip_triangle_pos_y)
