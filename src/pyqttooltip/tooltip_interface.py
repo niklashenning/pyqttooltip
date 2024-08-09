@@ -1,5 +1,6 @@
 from qtpy.QtWidgets import QWidget
 from qtpy.QtGui import QColor
+from .enums import TooltipPlacement
 
 
 class TooltipInterface(QWidget):
@@ -8,6 +9,9 @@ class TooltipInterface(QWidget):
         pass
 
     def getTriangleSize(self) -> int:
+        pass
+
+    def getPlacement(self) -> TooltipPlacement:
         pass
 
     def getBorderWidth(self) -> int:

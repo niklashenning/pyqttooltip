@@ -19,7 +19,11 @@ class TooltipTriangle(QWidget):
         self.update()
 
     def paintEvent(self, event):
+        if not self.tooltip.isTriangleEnabled():
+            return
+
         size = self.tooltip.getTriangleSize()
+        placement = self.tooltip.getPlacement()
         background_color = self.tooltip.getBackgroundColor()
         border_color = self.tooltip.getBorderColor()
         border_width = self.tooltip.getBorderWidth()
@@ -46,7 +50,13 @@ class TooltipTriangle(QWidget):
         painter.end()
 
     def update(self):
+        enabled = self.tooltip.isTriangleEnabled()
         size = self.tooltip.getTriangleSize()
         border_width = self.tooltip.getBorderWidth()
-        self.setFixedSize(size * 2, size + math.ceil(border_width / 2))
+
+        if enabled:
+            self.setFixedSize(size * 2, size + math.ceil(border_width / 2))
+        else:
+            self.setFixedSize(0, 0)
+
         super().update()
