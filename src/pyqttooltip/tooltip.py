@@ -29,8 +29,8 @@ class Tooltip(TooltipInterface):
         self.__triangle_enabled = True
         self.__triangle_size = 7
         self.__offset = QPoint(0, 0)
-        self.__showing_delay = 250
-        self.__hiding_delay = 250
+        self.__show_delay = 250
+        self.__hide_delay = 250
         self.__fade_in_duration = 100
         self.__fade_out_duration = 100
         self.__text_centering_enabled = True
@@ -131,17 +131,17 @@ class Tooltip(TooltipInterface):
     def setOffsetY(self, offset: int):
         self.setOffset(QPoint(self.__offset.x(), offset))
 
-    def getShowingDelay(self) -> int:
-        return self.__showing_delay
+    def getShowDelay(self) -> int:
+        return self.__show_delay
 
-    def setShowingDelay(self, delay: int):
-        self.__showing_delay = delay
+    def setShowDelay(self, delay: int):
+        self.__show_delay = delay
 
-    def getHidingDelay(self) -> int:
-        return self.__hiding_delay
+    def getHideDelay(self) -> int:
+        return self.__hide_delay
 
-    def setHidingDelay(self, delay: int):
-        self.__hiding_delay = delay
+    def setHideDelay(self, delay: int):
+        self.__hide_delay = delay
 
     def getFadeInDuration(self) -> int:
         return self.__fade_in_duration
