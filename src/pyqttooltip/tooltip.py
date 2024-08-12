@@ -102,7 +102,6 @@ class Tooltip(TooltipInterface):
         self.__fade_out_animation.setEasingCurve(self.__fade_out_easing_curve)
         self.__fade_out_animation.valueChanged.connect(self.__update_current_opacity)
         self.__fade_out_animation.finished.connect(self.__hide)
-        self.__fade_out_animation.start()
 
     def eventFilter(self, watched, event):
         if watched == self.__widget:
@@ -331,6 +330,9 @@ class Tooltip(TooltipInterface):
         self.__show_delay_timer.start()
 
     def __start_fade_in(self):
+        if self.__current_opacity == 0.0:
+            self.shown.emit()
+
         self.__fade_in_animation.setStartValue(self.__current_opacity)
         self.__fade_in_animation.setEndValue(1)
         self.__fade_in_animation.start()
@@ -352,6 +354,7 @@ class Tooltip(TooltipInterface):
     def __hide(self):
         self.__duration_timer.stop()
         super().hide()
+        self.hidden.emit()
 
     def __update_current_opacity(self, value):
         self.__current_opacity = value
