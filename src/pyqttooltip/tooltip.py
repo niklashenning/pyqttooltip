@@ -1,5 +1,5 @@
 from qtpy.QtWidgets import QWidget, QLabel, QGraphicsOpacityEffect
-from qtpy.QtCore import Qt, Signal, QMargins, QPoint, QTimer, QPropertyAnimation
+from qtpy.QtCore import Qt, Signal, QMargins, QPoint, QTimer, QPropertyAnimation, QEasingCurve
 from qtpy.QtGui import QColor, QFont
 from .tooltip_interface import TooltipInterface
 from .tooltip_triangle import TooltipTriangle
@@ -33,6 +33,8 @@ class Tooltip(TooltipInterface):
         self.__hide_delay = 250
         self.__fade_in_duration = 100
         self.__fade_out_duration = 100
+        self.__fade_in_easing_curve = QEasingCurve.Type.Linear
+        self.__fade_out_easing_curve = QEasingCurve.Type.Linear
         self.__text_centering_enabled = True
         self.__showing_on_disabled_widgets = False
         self.__border_radius = 0
@@ -81,11 +83,23 @@ class Tooltip(TooltipInterface):
         self.__hide_delay_timer.setSingleShot(True)
         self.__hide_delay_timer.timeout.connect(self.__start_fade_out)
 
+        # Init fade animations
+        self.__fade_in_animation = QPropertyAnimation(self.__opacity_effect, b'opacity')
+        self.__fade_in_animation.setDuration(self.__fade_in_duration)
+        self.__fade_in_animation.setEasingCurve(self.__fade_in_easing_curve)
+        self.__fade_in_animation.valueChanged.connect(self.__fade_animation_value_changed)
+
+        self.__fade_out_animation = QPropertyAnimation(self.__opacity_effect, b'opacity')
+        self.__fade_out_animation.setDuration(self.__fade_out_duration)
+        self.__fade_out_animation.setEasingCurve(self.__fade_out_easing_curve)
+        self.__fade_out_animation.valueChanged.connect(self.__fade_animation_value_changed)
+        self.__fade_out_animation.finished.connect(self.__hide)
+        self.__fade_out_animation.start()
+
     def eventFilter(self, watched, event):
         if watched == self.__widget:
             # Mouse enters widget
             if event.type() == event.Type.HoverEnter:
-                self.__update_ui()
                 self.show()
             # Mouse leaves widget
             elif event.type() == event.Type.HoverLeave:
@@ -153,24 +167,48 @@ class Tooltip(TooltipInterface):
 
     def setShowDelay(self, delay: int):
         self.__show_delay = delay
+        self.__show_delay_timer.setInterval(delay)
 
     def getHideDelay(self) -> int:
         return self.__hide_delay
 
     def setHideDelay(self, delay: int):
         self.__hide_delay = delay
+        self.__hide_delay_timer.setInterval(delay)
 
     def getFadeInDuration(self) -> int:
         return self.__fade_in_duration
 
     def setFadeInDuration(self, duration: int):
         self.__fade_in_duration = duration
+        self.__fade_in_animation.setDuration(duration)
 
     def getFadeOutDuration(self) -> int:
         return self.__fade_out_duration
 
     def setFadeOutDuration(self, duration: int):
         self.__fade_in_duration = duration
+        self.__fade_out_animation.setDuration(duration)
+
+    def getFadeInEasingCurve(self) -> QEasingCurve.Type:
+        return self.__fade_out_easing_curve
+
+    def setFadeInEasingCurve(self, easing_curve: QEasingCurve.Type | None):
+        if easing_curve is None:
+            easing_curve = QEasingCurve.Type.Linear
+
+        self.__fade_in_easing_curve = easing_curve
+        self.__fade_in_animation.setEasingCurve(easing_curve)
+
+    def getFadeOutEasingCurve(self) -> QEasingCurve.Type:
+        return self.__fade_out_easing_curve
+
+    def setFadeOutEasingCurve(self, easing_curve: QEasingCurve.Type | None):
+        if easing_curve is None:
+            easing_curve = QEasingCurve.Type.Linear
+
+        self.__fade_out_easing_curve = easing_curve
+        self.__fade_out_animation.setEasingCurve(easing_curve)
 
     def isTextCenteringEnabled(self) -> int:
         return self.__text_centering_enabled
@@ -248,6 +286,7 @@ class Tooltip(TooltipInterface):
         self.__margins.setBottom(margin)
 
     def show(self):
+        self.__update_ui()
         self.__start_show_delay()
 
     def hide(self):
@@ -262,12 +301,9 @@ class Tooltip(TooltipInterface):
         self.__show_delay_timer.start()
 
     def __start_fade_in(self):
-        self.fade_in_animation = QPropertyAnimation(self.__opacity_effect, b'opacity')
-        self.fade_in_animation.setDuration(self.__fade_in_duration)
-        self.fade_in_animation.setStartValue(self.__current_opacity)
-        self.fade_in_animation.setEndValue(1)
-        self.fade_in_animation.valueChanged.connect(self.__fade_animation_value_changed)
-        self.fade_in_animation.start()
+        self.__fade_in_animation.setStartValue(self.__current_opacity)
+        self.__fade_in_animation.setEndValue(1)
+        self.__fade_in_animation.start()
         super().show()
 
     def __start_hide_delay(self):
@@ -275,13 +311,9 @@ class Tooltip(TooltipInterface):
         self.__hide_delay_timer.start()
 
     def __start_fade_out(self):
-        self.fade_out_animation = QPropertyAnimation(self.__opacity_effect, b'opacity')
-        self.fade_out_animation.setDuration(self.__fade_out_duration)
-        self.fade_out_animation.setStartValue(self.__current_opacity)
-        self.fade_out_animation.setEndValue(0)
-        self.fade_out_animation.valueChanged.connect(self.__fade_animation_value_changed)
-        self.fade_out_animation.finished.connect(self.__hide)
-        self.fade_out_animation.start()
+        self.__fade_out_animation.setStartValue(self.__current_opacity)
+        self.__fade_out_animation.setEndValue(0)
+        self.__fade_out_animation.start()
 
     def __hide(self):
         super().hide()
