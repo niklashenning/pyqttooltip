@@ -84,16 +84,23 @@ class Tooltip(TooltipInterface):
         self.__hide_delay_timer.setSingleShot(True)
         self.__hide_delay_timer.timeout.connect(self.__start_fade_out)
 
+        # Init duration timer
+        self.__duration_timer = QTimer(self)
+        self.__duration_timer.setInterval(self.__duration)
+        self.__duration_timer.setSingleShot(True)
+        self.__duration_timer.timeout.connect(self.__start_fade_out)
+
         # Init fade animations
         self.__fade_in_animation = QPropertyAnimation(self.__opacity_effect, b'opacity')
         self.__fade_in_animation.setDuration(self.__fade_in_duration)
         self.__fade_in_animation.setEasingCurve(self.__fade_in_easing_curve)
-        self.__fade_in_animation.valueChanged.connect(self.__fade_animation_value_changed)
+        self.__fade_in_animation.valueChanged.connect(self.__update_current_opacity)
+        self.__fade_in_animation.finished.connect(self.__start_duration_timer)
 
         self.__fade_out_animation = QPropertyAnimation(self.__opacity_effect, b'opacity')
         self.__fade_out_animation.setDuration(self.__fade_out_duration)
         self.__fade_out_animation.setEasingCurve(self.__fade_out_easing_curve)
-        self.__fade_out_animation.valueChanged.connect(self.__fade_animation_value_changed)
+        self.__fade_out_animation.valueChanged.connect(self.__update_current_opacity)
         self.__fade_out_animation.finished.connect(self.__hide)
         self.__fade_out_animation.start()
 
@@ -126,6 +133,7 @@ class Tooltip(TooltipInterface):
 
     def setDuration(self, duration: int):
         self.__duration = duration
+        self.__duration_timer.setInterval(duration)
 
     def getPlacement(self) -> TooltipPlacement:
         return self.__placement
@@ -290,6 +298,7 @@ class Tooltip(TooltipInterface):
         self.__margins.setBottom(margin)
 
     def show(self):
+        self.__duration_timer.stop()
         self.__update_ui()
         self.__start_show_delay()
 
@@ -310,6 +319,10 @@ class Tooltip(TooltipInterface):
         self.__fade_in_animation.start()
         super().show()
 
+    def __start_duration_timer(self):
+        if self.__duration != 0:
+            self.__duration_timer.start()
+
     def __start_hide_delay(self):
         self.__show_delay_timer.stop()
         self.__hide_delay_timer.start()
@@ -320,9 +333,10 @@ class Tooltip(TooltipInterface):
         self.__fade_out_animation.start()
 
     def __hide(self):
+        self.__duration_timer.stop()
         super().hide()
 
-    def __fade_animation_value_changed(self, value):
+    def __update_current_opacity(self, value):
         self.__current_opacity = value
 
     def __update_stylesheet(self):
