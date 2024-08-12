@@ -118,7 +118,7 @@ class Tooltip(TooltipInterface):
         return self.__widget
 
     def setWidget(self, widget: QWidget):
-        # TODO: uninstall and reinstall event filter
+        # TODO: uninstall and reinstall event filter (and handle visible tooltip)
         self.__widget = widget
 
     def getText(self) -> str:
@@ -127,6 +127,7 @@ class Tooltip(TooltipInterface):
     def setText(self, text: str):
         self.__text = text
         self.__text_widget.setText(text)
+        self.__update_ui()
 
     def getDuration(self) -> int:
         return self.__duration
@@ -140,6 +141,7 @@ class Tooltip(TooltipInterface):
 
     def setPlacement(self, placement: TooltipPlacement):
         self.__placement = placement
+        self.__update_ui()
 
     def getActualPlacement(self) -> TooltipPlacement | None:
         return self.__actual_placement
@@ -149,18 +151,21 @@ class Tooltip(TooltipInterface):
 
     def setTriangleEnabled(self, enabled: bool):
         self.__triangle_enabled = enabled
+        self.__update_ui()
 
     def getTriangleSize(self) -> int:
         return self.__triangle_size
 
     def setTriangleSize(self, size: int):
         self.__triangle_size = size
+        self.__update_ui()
 
     def getOffset(self) -> QPoint:
         return self.__offset
 
     def setOffset(self, offset: QPoint):
         self.__offset = offset
+        self.__update_ui()
 
     def getOffsetX(self) -> int:
         return self.__offset.x()
@@ -227,6 +232,7 @@ class Tooltip(TooltipInterface):
 
     def setTextCenteringEnabled(self, enabled: bool):
         self.__text_centering_enabled = enabled
+        self.__update_ui()
 
     def isShowingOnDisabledWidgets(self) -> bool:
         return self.__showing_on_disabled_widgets
@@ -239,30 +245,35 @@ class Tooltip(TooltipInterface):
 
     def setBorderRadius(self, border_radius: int):
         self.__border_radius = border_radius
+        self.__update_ui()
 
     def getBorderWidth(self) -> int:
         return self.__border_width
 
     def setBorderWidth(self, width: int):
         self.__border_width = width
+        self.__update_ui()
 
     def getBackgroundColor(self) -> QColor:
         return self.__background_color
 
     def setBackgroundColor(self, color: QColor):
         self.__background_color = color
+        self.__update_ui()
 
     def getTextColor(self) -> QColor:
         return self.__text_color
 
     def setTextColor(self, color: QColor):
         self.__text_color = color
+        self.__update_ui()
 
     def getBorderColor(self) -> QColor:
         return self.__border_color
 
     def setBorderColor(self, color: QColor):
         self.__border_color = color
+        self.__update_ui()
 
     def getOpacity(self) -> float:
         return self.windowOpacity()
@@ -278,24 +289,30 @@ class Tooltip(TooltipInterface):
 
     def setFont(self, font: QFont):
         self.__font = font
+        self.__update_ui()
 
     def getMargins(self) -> QMargins:
         return self.__margins
 
     def setMargins(self, margins: QMargins):
         self.__margins = margins
+        self.__update_ui()
 
     def setMarginLeft(self, margin: int):
         self.__margins.setLeft(margin)
+        self.__update_ui()
 
     def setMarginTop(self, margin: int):
         self.__margins.setTop(margin)
+        self.__update_ui()
 
     def setMarginRight(self, margin: int):
         self.__margins.setRight(margin)
+        self.__update_ui()
 
     def setMarginBottom(self, margin: int):
         self.__margins.setBottom(margin)
+        self.__update_ui()
 
     def show(self):
         self.__duration_timer.stop()
