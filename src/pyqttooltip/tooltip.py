@@ -45,6 +45,7 @@ class Tooltip(TooltipInterface):
         self.__font = QFont('Arial', 9)
         self.__margins = QMargins(10, 5, 10, 5)
 
+        self.__actual_placement = None
         self.__current_opacity = 0.0
 
         # Widget settings
@@ -65,7 +66,7 @@ class Tooltip(TooltipInterface):
         self.__triangle_widget = TooltipTriangle(self)
 
         # Create text widget
-        self.__text_widget = QLabel(self)
+        self.__text_widget = QLabel(self.__tooltip_body)
         self.__text_widget.setText(text)
 
         # Install event filter on widget
@@ -132,6 +133,9 @@ class Tooltip(TooltipInterface):
     def setPlacement(self, placement: TooltipPlacement):
         self.__placement = placement
 
+    def getActualPlacement(self) -> TooltipPlacement | None:
+        return self.__actual_placement
+
     def isTriangleEnabled(self) -> bool:
         return self.__triangle_enabled
 
@@ -142,7 +146,7 @@ class Tooltip(TooltipInterface):
         return self.__triangle_size
 
     def setTriangleSize(self, size: int):
-        self.__triangle_enabled = size
+        self.__triangle_size = size
 
     def getOffset(self) -> QPoint:
         return self.__offset
@@ -330,32 +334,68 @@ class Tooltip(TooltipInterface):
                                                   self.__border_width,
                                                   self.__border_color.name()))
 
-        self.__text_widget.setStyleSheet('color: {}'.format(self.__text_color.name()))
+        self.__text_widget.setStyleSheet('border: none;'
+                                         'color: {}'.format(self.__text_color.name()))
 
     def __update_ui(self):
+        # Update stylesheet
         self.__update_stylesheet()
-        self.__triangle_widget.update()
 
+        # Calculate text width and height
         font_metrics = self.__text_widget.fontMetrics()
         bounding_rect = font_metrics.boundingRect(self.__text)
         text_width = bounding_rect.width() + 3
         text_height = bounding_rect.height()
-        self.__text_widget.setFixedSize(text_width, text_height)
-        self.__text_widget.move(self.__margins.left(), self.__margins.top())
 
+        # Calculate body width and height
         body_width = self.__margins.left() + text_width + self.__margins.right()
         body_height = self.__margins.top() + text_height + self.__margins.bottom()
-        self.__tooltip_body.setFixedSize(body_width, body_height)
 
+        # Calculate tooltip placement (TODO)
+        self.__actual_placement = self.__placement if self.__placement != TooltipPlacement.AUTO else TooltipPlacement.TOP  # TEMPORARY
+        self.__triangle_widget.update()
+
+        # Calculate total size and widget positions based on placement
         width = body_width
-        height = body_height + self.__triangle_widget.height() - self.__border_width
-        self.setFixedSize(width, height)
-
+        height = body_height
+        tooltip_triangle_pos = QPoint(0, 0)
+        tooltip_body_pos = QPoint(0, 0)
+        tooltip_pos = QPoint(0, 0)
         widget_pos = self.__widget.parent().mapToGlobal(self.__widget.pos())
-        tooltip_pos_x = widget_pos.x() + int(self.__widget.width() / 2) - int(width / 2)
-        tooltip_pos_y = widget_pos.y() - height
-        self.move(tooltip_pos_x, tooltip_pos_y)
 
-        tooltip_triangle_pos_x = int(width / 2) - self.__triangle_size
-        tooltip_triangle_pos_y = self.__tooltip_body.height() - self.__border_width
-        self.__triangle_widget.move(tooltip_triangle_pos_x, tooltip_triangle_pos_y)
+        if self.__actual_placement == TooltipPlacement.TOP:
+            height = body_height + self.__triangle_widget.height() - self.__border_width
+            tooltip_triangle_pos.setX(int(width / 2) - self.__triangle_size)
+            tooltip_triangle_pos.setY(body_height - self.__border_width)
+            tooltip_pos.setX(int(widget_pos.x() + self.__widget.width() / 2 - width / 2))
+            tooltip_pos.setY(widget_pos.y() - height)
+
+        elif self.__actual_placement == TooltipPlacement.BOTTOM:
+            height = body_height + self.__triangle_widget.height() - self.__border_width
+            tooltip_triangle_pos.setX(int(width / 2) - self.__triangle_size)
+            tooltip_body_pos.setY(self.__triangle_widget.height() - self.__border_width)
+            tooltip_pos.setX(int(widget_pos.x() + self.__widget.width() / 2 - width / 2))
+            tooltip_pos.setY(widget_pos.y() + self.__widget.height())
+
+        elif self.__actual_placement == TooltipPlacement.LEFT:
+            width = body_width + self.__triangle_widget.width() - self.__border_width
+            tooltip_triangle_pos.setX(body_width - self.__border_width)
+            tooltip_triangle_pos.setY(int(height / 2 - self.__triangle_size))
+            tooltip_pos.setX(widget_pos.x() - width)
+            tooltip_pos.setY(int(widget_pos.y() + self.__widget.height() / 2 - height / 2))
+
+        elif self.__actual_placement == TooltipPlacement.RIGHT:
+            width = body_width + self.__triangle_widget.width() - self.__border_width
+            tooltip_triangle_pos.setY(int(height / 2 - self.__triangle_size))
+            tooltip_body_pos.setX(self.__triangle_widget.width() - self.__border_width)
+            tooltip_pos.setX(widget_pos.x() + self.__widget.width())
+            tooltip_pos.setY(int(widget_pos.y() + self.__widget.height() / 2 - height / 2))
+
+        # Move and resize widgets
+        self.__text_widget.resize(text_width, text_height)
+        self.__text_widget.move(self.__margins.left(), self.__margins.top())
+        self.__tooltip_body.resize(body_width, body_height)
+        self.__tooltip_body.move(tooltip_body_pos)
+        self.__triangle_widget.move(tooltip_triangle_pos)
+        self.resize(width, height)
+        self.move(tooltip_pos)

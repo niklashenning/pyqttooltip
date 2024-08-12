@@ -11,7 +11,7 @@ class TooltipInterface(QWidget):
     def getTriangleSize(self) -> int:
         pass
 
-    def getPlacement(self) -> TooltipPlacement:
+    def getActualPlacement(self) -> TooltipPlacement | None:
         pass
 
     def getBorderWidth(self) -> int:
