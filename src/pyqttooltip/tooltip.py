@@ -1,5 +1,5 @@
-from qtpy.QtWidgets import QWidget, QLabel
-from qtpy.QtCore import Qt, Signal, QMargins, QPoint
+from qtpy.QtWidgets import QWidget, QLabel, QGraphicsOpacityEffect
+from qtpy.QtCore import Qt, Signal, QMargins, QPoint, QTimer, QPropertyAnimation
 from qtpy.QtGui import QColor, QFont
 from .tooltip_interface import TooltipInterface
 from .tooltip_triangle import TooltipTriangle
@@ -43,12 +43,18 @@ class Tooltip(TooltipInterface):
         self.__font = QFont('Arial', 9)
         self.__margins = QMargins(10, 5, 10, 5)
 
+        self.__current_opacity = 0.0
+
         # Widget settings
         self.setWindowFlags(Qt.WindowType.ToolTip |
                             Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+
+        # Opacity effect for fading animations
+        self.__opacity_effect = QGraphicsOpacityEffect()
+        self.setGraphicsEffect(self.__opacity_effect)
 
         # Create tooltip body widget
         self.__tooltip_body = QWidget(self)
@@ -63,6 +69,17 @@ class Tooltip(TooltipInterface):
         # Install event filter on widget
         if self.__widget is not None:
             self.__widget.installEventFilter(self)
+
+        # Init delay timers
+        self.__show_delay_timer = QTimer(self)
+        self.__show_delay_timer.setInterval(self.__show_delay)
+        self.__show_delay_timer.setSingleShot(True)
+        self.__show_delay_timer.timeout.connect(self.__start_fade_in)
+
+        self.__hide_delay_timer = QTimer(self)
+        self.__hide_delay_timer.setInterval(self.__hide_delay)
+        self.__hide_delay_timer.setSingleShot(True)
+        self.__hide_delay_timer.timeout.connect(self.__start_fade_out)
 
     def eventFilter(self, watched, event):
         if watched == self.__widget:
@@ -229,6 +246,48 @@ class Tooltip(TooltipInterface):
 
     def setMarginBottom(self, margin: int):
         self.__margins.setBottom(margin)
+
+    def show(self):
+        self.__start_show_delay()
+
+    def hide(self):
+        self.__start_hide_delay()
+
+    def update(self):
+        self.__update_ui()
+        super().update()
+
+    def __start_show_delay(self):
+        self.__hide_delay_timer.stop()
+        self.__show_delay_timer.start()
+
+    def __start_fade_in(self):
+        self.fade_in_animation = QPropertyAnimation(self.__opacity_effect, b'opacity')
+        self.fade_in_animation.setDuration(self.__fade_in_duration)
+        self.fade_in_animation.setStartValue(self.__current_opacity)
+        self.fade_in_animation.setEndValue(1)
+        self.fade_in_animation.valueChanged.connect(self.__fade_animation_value_changed)
+        self.fade_in_animation.start()
+        super().show()
+
+    def __start_hide_delay(self):
+        self.__show_delay_timer.stop()
+        self.__hide_delay_timer.start()
+
+    def __start_fade_out(self):
+        self.fade_out_animation = QPropertyAnimation(self.__opacity_effect, b'opacity')
+        self.fade_out_animation.setDuration(self.__fade_out_duration)
+        self.fade_out_animation.setStartValue(self.__current_opacity)
+        self.fade_out_animation.setEndValue(0)
+        self.fade_out_animation.valueChanged.connect(self.__fade_animation_value_changed)
+        self.fade_out_animation.finished.connect(self.__hide)
+        self.fade_out_animation.start()
+
+    def __hide(self):
+        super().hide()
+
+    def __fade_animation_value_changed(self, value):
+        self.__current_opacity = value
 
     def __update_stylesheet(self):
         self.__tooltip_body.setStyleSheet('background: {}; '
