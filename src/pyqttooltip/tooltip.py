@@ -104,6 +104,9 @@ class Tooltip(TooltipInterface):
         self.__fade_out_animation.valueChanged.connect(self.__update_current_opacity)
         self.__fade_out_animation.finished.connect(self.__hide)
 
+        # Init stylesheet
+        self.__update_stylesheet()
+
     def eventFilter(self, watched, event):
         if watched == self.__widget:
             # Mouse enters widget
@@ -245,6 +248,7 @@ class Tooltip(TooltipInterface):
 
     def setBorderRadius(self, border_radius: int):
         self.__border_radius = border_radius
+        self.__update_stylesheet()
         self.__update_ui()
 
     def getBorderWidth(self) -> int:
@@ -252,6 +256,7 @@ class Tooltip(TooltipInterface):
 
     def setBorderWidth(self, width: int):
         self.__border_width = width
+        self.__update_stylesheet()
         self.__update_ui()
 
     def getBackgroundColor(self) -> QColor:
@@ -259,6 +264,7 @@ class Tooltip(TooltipInterface):
 
     def setBackgroundColor(self, color: QColor):
         self.__background_color = color
+        self.__update_stylesheet()
         self.__update_ui()
 
     def getTextColor(self) -> QColor:
@@ -266,6 +272,7 @@ class Tooltip(TooltipInterface):
 
     def setTextColor(self, color: QColor):
         self.__text_color = color
+        self.__update_stylesheet()
         self.__update_ui()
 
     def getBorderColor(self) -> QColor:
@@ -273,6 +280,7 @@ class Tooltip(TooltipInterface):
 
     def setBorderColor(self, color: QColor):
         self.__border_color = color
+        self.__update_stylesheet()
         self.__update_ui()
 
     def getOpacity(self) -> float:
@@ -373,9 +381,6 @@ class Tooltip(TooltipInterface):
                                          'color: {}'.format(self.__text_color.name()))
 
     def __update_ui(self):
-        # Update stylesheet
-        self.__update_stylesheet()
-
         # Calculate text width and height
         font_metrics = self.__text_widget.fontMetrics()
         bounding_rect = font_metrics.boundingRect(self.__text)
