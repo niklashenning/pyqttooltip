@@ -65,8 +65,8 @@ class Tooltip(TooltipInterface):
         self.__opacity_effect = QGraphicsOpacityEffect()
         self.setGraphicsEffect(self.__opacity_effect)
 
-        # Create tooltip body widget
-        self.__tooltip_body = QWidget(self)
+        # Create tooltip body widget (QLabel since QWidget has unwanted behaviour with stylesheets)
+        self.__tooltip_body = QLabel(self)
 
         # Create triangle widget
         self.__triangle_widget = TooltipTriangle(self)
