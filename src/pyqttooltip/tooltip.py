@@ -29,7 +29,12 @@ class Tooltip(TooltipInterface):
         self.__placement = TooltipPlacement.AUTO
         self.__triangle_enabled = True
         self.__triangle_size = 7
-        self.__offset = QPoint(0, 0)
+        self.__offsets = {
+            TooltipPlacement.LEFT: QPoint(0, 0),
+            TooltipPlacement.RIGHT: QPoint(0, 0),
+            TooltipPlacement.TOP: QPoint(0, 0),
+            TooltipPlacement.BOTTOM: QPoint(0, 0)
+        }
         self.__show_delay = 250
         self.__hide_delay = 250
         self.__fade_in_duration = 100
@@ -163,24 +168,25 @@ class Tooltip(TooltipInterface):
         self.__triangle_size = size
         self.__update_ui()
 
-    def getOffset(self) -> QPoint:
-        return self.__offset
+    def getOffsets(self) -> dict[TooltipPlacement, QPoint]:
+        return self.__offsets
 
-    def setOffset(self, offset: QPoint):
-        self.__offset = offset
+    def getOffset(self, placement: TooltipPlacement) -> QPoint:
+        return self.__offsets[placement]
+
+    def setOffsets(self, offsets: dict[TooltipPlacement, QPoint]):
+        for placement, offset in offsets.items():
+            self.__offsets[placement] = offset
         self.__update_ui()
 
-    def getOffsetX(self) -> int:
-        return self.__offset.x()
+    def setOffset(self, placement: TooltipPlacement, offset: QPoint):
+        self.__offsets[placement] = offset
+        self.__update_ui()
 
-    def setOffsetX(self, offset: int):
-        self.setOffset(QPoint(offset, self.__offset.y()))
-
-    def getOffsetY(self) -> int:
-        return self.__offset.y()
-
-    def setOffsetY(self, offset: int):
-        self.setOffset(QPoint(self.__offset.x(), offset))
+    def setOffsetAll(self, offset: QPoint):
+        for placement, _ in self.__offsets.items():
+            self.__offsets[placement] = offset
+        self.__update_ui()
 
     def getShowDelay(self) -> int:
         return self.__show_delay
@@ -407,29 +413,35 @@ class Tooltip(TooltipInterface):
             height = body_height + self.__triangle_widget.height() - self.__border_width
             tooltip_triangle_pos.setX(math.ceil(width / 2 - self.__triangle_size))
             tooltip_triangle_pos.setY(body_height - self.__border_width)
-            tooltip_pos.setX(int(widget_pos.x() + self.__widget.width() / 2 - width / 2))
-            tooltip_pos.setY(widget_pos.y() - height)
+            tooltip_pos.setX(int(widget_pos.x() + self.__widget.width() / 2 - width / 2)
+                             + self.__offsets[self.__actual_placement].x())
+            tooltip_pos.setY(widget_pos.y() - height + -self.__offsets[self.__actual_placement].y())
 
         elif self.__actual_placement == TooltipPlacement.BOTTOM:
             height = body_height + self.__triangle_widget.height() - self.__border_width
             tooltip_triangle_pos.setX(math.ceil(width / 2 - self.__triangle_size))
             tooltip_body_pos.setY(self.__triangle_widget.height() - self.__border_width)
-            tooltip_pos.setX(int(widget_pos.x() + self.__widget.width() / 2 - width / 2))
-            tooltip_pos.setY(widget_pos.y() + self.__widget.height())
+            tooltip_pos.setX(int(widget_pos.x() + self.__widget.width() / 2 - width / 2)
+                             + self.__offsets[self.__actual_placement].x())
+            tooltip_pos.setY(widget_pos.y() + self.__widget.height()
+                             + self.__offsets[self.__actual_placement].y())
 
         elif self.__actual_placement == TooltipPlacement.LEFT:
             width = body_width + self.__triangle_widget.width() - self.__border_width
             tooltip_triangle_pos.setX(body_width - self.__border_width)
             tooltip_triangle_pos.setY(math.ceil(height / 2 - self.__triangle_size))
-            tooltip_pos.setX(widget_pos.x() - width)
-            tooltip_pos.setY(int(widget_pos.y() + self.__widget.height() / 2 - height / 2))
+            tooltip_pos.setX(widget_pos.x() - width + -self.__offsets[self.__actual_placement].x())
+            tooltip_pos.setY(int(widget_pos.y() + self.__widget.height() / 2 - height / 2)
+                             + self.__offsets[self.__actual_placement].y())
 
         elif self.__actual_placement == TooltipPlacement.RIGHT:
             width = body_width + self.__triangle_widget.width() - self.__border_width
             tooltip_triangle_pos.setY(math.ceil(height / 2 - self.__triangle_size))
             tooltip_body_pos.setX(self.__triangle_widget.width() - self.__border_width)
-            tooltip_pos.setX(widget_pos.x() + self.__widget.width())
-            tooltip_pos.setY(int(widget_pos.y() + self.__widget.height() / 2 - height / 2))
+            tooltip_pos.setX(widget_pos.x() + self.__widget.width()
+                             + self.__offsets[self.__actual_placement].x())
+            tooltip_pos.setY(int(widget_pos.y() + self.__widget.height() / 2 - height / 2)
+                             + self.__offsets[self.__actual_placement].y())
 
         # Move and resize widgets
         self.__text_widget.resize(text_width, text_height)
