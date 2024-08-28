@@ -30,9 +30,9 @@ class Tooltip(TooltipInterface):
         self.__triangle_enabled = True
         self.__triangle_size = 7
         self.__offsets = {
-            TooltipPlacement.LEFT: QPoint(0, 0),
-            TooltipPlacement.RIGHT: QPoint(0, 0),
-            TooltipPlacement.TOP: QPoint(0, 0),
+            TooltipPlacement.LEFT:   QPoint(0, 0),
+            TooltipPlacement.RIGHT:  QPoint(0, 0),
+            TooltipPlacement.TOP:    QPoint(0, 0),
             TooltipPlacement.BOTTOM: QPoint(0, 0)
         }
         self.__show_delay = 250
@@ -42,7 +42,6 @@ class Tooltip(TooltipInterface):
         self.__fade_in_easing_curve = QEasingCurve.Type.Linear
         self.__fade_out_easing_curve = QEasingCurve.Type.Linear
         self.__text_centering_enabled = True
-        self.__showing_on_disabled_widgets = False
         self.__border_radius = 0
         self.__border_width = 0
         self.__background_color = QColor('#000000')
@@ -151,7 +150,7 @@ class Tooltip(TooltipInterface):
         self.__placement = placement
         self.__update_ui()
 
-    def getActualPlacement(self) -> TooltipPlacement | None:
+    def getActualPlacement(self) -> TooltipPlacement:
         return self.__actual_placement
 
     def isTriangleEnabled(self) -> bool:
@@ -242,12 +241,6 @@ class Tooltip(TooltipInterface):
     def setTextCenteringEnabled(self, enabled: bool):
         self.__text_centering_enabled = enabled
         self.__update_ui()
-
-    def isShowingOnDisabledWidgets(self) -> bool:
-        return self.__showing_on_disabled_widgets
-
-    def setShowingOnDisabledWidgets(self, enabled: bool):
-        self.__showing_on_disabled_widgets = enabled
 
     def getBorderRadius(self) -> int:
         return self.__border_radius
@@ -407,7 +400,7 @@ class Tooltip(TooltipInterface):
         tooltip_triangle_pos = QPoint(0, 0)
         tooltip_body_pos = QPoint(0, 0)
         tooltip_pos = QPoint(0, 0)
-        widget_pos = self.__widget.parent().mapToGlobal(self.__widget.pos())
+        widget_pos = self.__get_top_level_parent(self.__widget).mapToGlobal(self.__widget.pos())
 
         if self.__actual_placement == TooltipPlacement.TOP:
             height = body_height + self.__triangle_widget.height() - self.__border_width
@@ -451,3 +444,13 @@ class Tooltip(TooltipInterface):
         self.__triangle_widget.move(tooltip_triangle_pos)
         self.resize(width, height)
         self.move(tooltip_pos)
+
+    def __get_top_level_parent(self, widget: QWidget) -> QWidget:
+        if widget.parent() is None:
+            return widget
+
+        parent = widget.parent()
+
+        while parent.parent() is not None:
+            parent = parent.parent()
+        return parent
