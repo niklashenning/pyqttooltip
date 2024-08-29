@@ -5,6 +5,8 @@ from qtpy.QtGui import QColor, QFont
 from .tooltip_interface import TooltipInterface
 from .tooltip_triangle import TooltipTriangle
 from .enums import TooltipPlacement
+from .placement_utils import PlacementUtils
+from .utils import Utils
 
 
 class Tooltip(TooltipInterface):
@@ -390,9 +392,11 @@ class Tooltip(TooltipInterface):
         body_width = self.__margins.left() + text_width + self.__margins.right()
         body_height = self.__margins.top() + text_height + self.__margins.bottom()
 
-        # Calculate tooltip placement (TODO)
-        self.__actual_placement = self.__placement if self.__placement != TooltipPlacement.AUTO else TooltipPlacement.TOP  # TEMPORARY
-        self.__triangle_widget.update()
+        # Calculate actual tooltip placement
+        if self.__placement == TooltipPlacement.AUTO:
+            self.__actual_placement = PlacementUtils.get_optimal_placement(self.__widget)
+        else:
+            self.__actual_placement = self.__placement
 
         # Calculate total size and widget positions based on placement
         width = body_width
@@ -400,7 +404,8 @@ class Tooltip(TooltipInterface):
         tooltip_triangle_pos = QPoint(0, 0)
         tooltip_body_pos = QPoint(0, 0)
         tooltip_pos = QPoint(0, 0)
-        widget_pos = self.__get_top_level_parent(self.__widget).mapToGlobal(self.__widget.pos())
+        widget_pos = Utils.get_top_level_parent(self.__widget).mapToGlobal(self.__widget.pos())
+        self.__triangle_widget.update()
 
         if self.__actual_placement == TooltipPlacement.TOP:
             height = body_height + self.__triangle_widget.height() - self.__border_width
@@ -444,13 +449,3 @@ class Tooltip(TooltipInterface):
         self.__triangle_widget.move(tooltip_triangle_pos)
         self.resize(width, height)
         self.move(tooltip_pos)
-
-    def __get_top_level_parent(self, widget: QWidget) -> QWidget:
-        if widget.parent() is None:
-            return widget
-
-        parent = widget.parent()
-
-        while parent.parent() is not None:
-            parent = parent.parent()
-        return parent
