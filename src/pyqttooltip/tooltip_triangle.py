@@ -40,7 +40,7 @@ class TooltipTriangle(QWidget):
         # Rotate widget by 180° depending on placement
         if actual_placement == TooltipPlacement.BOTTOM or actual_placement == TooltipPlacement.RIGHT:
             transform = QTransform()
-            transform.translate(self.width() / 2, self.height() / 2)
+            transform.translate(self.width() / 2 - 0.5, self.height() / 2)
             transform.rotate(180)
             transform.translate(-self.width() / 2, -self.height() / 2)
             painter.setTransform(transform)
