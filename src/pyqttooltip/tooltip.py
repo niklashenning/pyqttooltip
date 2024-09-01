@@ -403,7 +403,7 @@ class Tooltip(TooltipInterface):
         if self.__placement == TooltipPlacement.AUTO:
             self.__actual_placement = PlacementUtils.get_optimal_placement(self.__widget,
                                                                            QSize(body_width, body_height),
-                                                                           self.__triangle_size)
+                                                                           self.__triangle_size, self.__offsets)
         else:
             self.__actual_placement = self.__placement
             # Calculate fallback placement
@@ -411,7 +411,7 @@ class Tooltip(TooltipInterface):
                 fallback_placement = PlacementUtils.get_fallback_placement(self.__widget, self.__actual_placement,
                                                                            self.__fallback_placements,
                                                                            QSize(body_width, body_height),
-                                                                           self.__triangle_size)
+                                                                           self.__triangle_size, self.__offsets)
                 if fallback_placement:
                     self.__actual_placement = fallback_placement
 
