@@ -1,6 +1,6 @@
 import math
 from qtpy.QtWidgets import QWidget, QLabel, QGraphicsOpacityEffect
-from qtpy.QtCore import Qt, Signal, QMargins, QPoint, QTimer, QPropertyAnimation, QEasingCurve
+from qtpy.QtCore import Qt, Signal, QMargins, QPoint, QSize, QTimer, QPropertyAnimation, QEasingCurve
 from qtpy.QtGui import QColor, QFont
 from .tooltip_interface import TooltipInterface
 from .tooltip_triangle import TooltipTriangle
@@ -29,6 +29,7 @@ class Tooltip(TooltipInterface):
         self.__text = text
         self.__duration = 0
         self.__placement = TooltipPlacement.AUTO
+        self.__fallback_placements = []
         self.__triangle_enabled = True
         self.__triangle_size = 7
         self.__offsets = {
@@ -66,15 +67,13 @@ class Tooltip(TooltipInterface):
         self.__opacity_effect = QGraphicsOpacityEffect()
         self.setGraphicsEffect(self.__opacity_effect)
 
-        # Create tooltip body widget (QLabel since QWidget has unwanted behaviour with stylesheets)
+        # Create widgets
         self.__tooltip_body = QLabel(self)
-
-        # Create triangle widget
         self.__triangle_widget = TooltipTriangle(self)
 
-        # Create text widget
         self.__text_widget = QLabel(self.__tooltip_body)
         self.__text_widget.setText(text)
+        self.__text_widget.setFont(self.__font)
 
         # Install event filter on widget
         if self.__widget is not None:
@@ -154,6 +153,13 @@ class Tooltip(TooltipInterface):
 
     def getActualPlacement(self) -> TooltipPlacement:
         return self.__actual_placement
+
+    def getFallbackPlacements(self) -> list[TooltipPlacement]:
+        return self.__fallback_placements
+
+    def setFallbackPlacements(self, fallback_placements: list[TooltipPlacement]):
+        self.__fallback_placements = fallback_placements
+        self.__update_ui()
 
     def isTriangleEnabled(self) -> bool:
         return self.__triangle_enabled
@@ -298,6 +304,7 @@ class Tooltip(TooltipInterface):
 
     def setFont(self, font: QFont):
         self.__font = font
+        self.__text_widget.setFont(font)
         self.__update_ui()
 
     def getMargins(self) -> QMargins:
@@ -397,6 +404,14 @@ class Tooltip(TooltipInterface):
             self.__actual_placement = PlacementUtils.get_optimal_placement(self.__widget)
         else:
             self.__actual_placement = self.__placement
+            # Calculate fallback placement
+            if self.__fallback_placements:
+                fallback_placement = PlacementUtils.get_fallback_placement(self.__widget, self.__actual_placement,
+                                                                           self.__fallback_placements,
+                                                                           QSize(body_width, body_height),
+                                                                           self.__triangle_size)
+                if fallback_placement:
+                    self.__actual_placement = fallback_placement
 
         # Calculate total size and widget positions based on placement
         width = body_width
