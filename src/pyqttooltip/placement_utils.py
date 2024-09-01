@@ -7,58 +7,66 @@ from .utils import Utils
 class PlacementUtils:
 
     @staticmethod
-    def get_optimal_placement(widget: QWidget) -> TooltipPlacement:
+    def get_optimal_placement(widget: QWidget, size: QSize, triangle_size: int) -> TooltipPlacement:
         top_level_parent = Utils.get_top_level_parent(widget)
         top_level_parent_pos = top_level_parent.pos()
         top_level_parent_geometry = top_level_parent.geometry()
         widget_pos = top_level_parent.mapToGlobal(widget.pos())
 
-        # Calculate position that has the most available space
+        # Calculate available space for placements
         left_space = widget_pos.x() - top_level_parent_pos.x()
         right_space = top_level_parent_geometry.right() - (widget_pos.x() + widget.width())
         top_space = widget_pos.y() - top_level_parent_pos.y()
         bottom_space = top_level_parent_geometry.bottom() - (widget_pos.y() + widget.height())
-        max_space = max(left_space, right_space, top_space, bottom_space)
+        space_placement_map = {
+            TooltipPlacement.RIGHT:  right_space,
+            TooltipPlacement.LEFT:   left_space,
+            TooltipPlacement.TOP:    top_space,
+            TooltipPlacement.BOTTOM: bottom_space
+        }
 
-        if right_space == max_space:
-            return TooltipPlacement.RIGHT
-        elif left_space == max_space:
-            return TooltipPlacement.LEFT
-        elif top_space == max_space:
-            return TooltipPlacement.TOP
-        return TooltipPlacement.BOTTOM
+        # Return most optimal placement that also fits on screen
+        optimal_placement = None
+        for placement, space in sorted(space_placement_map.items(), key=lambda item: item[1], reverse=True):
+            if not optimal_placement:
+                optimal_placement = placement
+            tooltip_rect = PlacementUtils.__get_tooltip_rect(widget, placement, size, triangle_size)
+            if PlacementUtils.__rect_contained_by_screen(tooltip_rect):
+                return placement
+
+        return optimal_placement
 
     @staticmethod
     def get_fallback_placement(widget: QWidget, current_placement: TooltipPlacement,
                                fallback_placements: list[TooltipPlacement], size: QSize,
                                triangle_size: int) -> TooltipPlacement | None:
-        tooltip_rect = PlacementUtils.get_tooltip_rect(widget, current_placement,
-                                                       size, triangle_size)
+        tooltip_rect = PlacementUtils.__get_tooltip_rect(widget, current_placement,
+                                                         size, triangle_size)
 
         # Return None if current placement is valid
-        if PlacementUtils.rect_contained_by_screen(tooltip_rect):
+        if PlacementUtils.__rect_contained_by_screen(tooltip_rect):
             return None
 
         # Check all fallback placements and return first valid placement
         for placement in fallback_placements:
             if placement == current_placement or placement == TooltipPlacement.AUTO:
                 continue
-            tooltip_rect = PlacementUtils.get_tooltip_rect(widget, placement,
-                                                           size, triangle_size)
-            if PlacementUtils.rect_contained_by_screen(tooltip_rect):
+            tooltip_rect = PlacementUtils.__get_tooltip_rect(widget, placement,
+                                                             size, triangle_size)
+            if PlacementUtils.__rect_contained_by_screen(tooltip_rect):
                 return placement
         return None
 
     @staticmethod
-    def rect_contained_by_screen(rect: QRect) -> bool:
+    def __rect_contained_by_screen(rect: QRect) -> bool:
         for screen in QApplication.screens():
             if screen.geometry().contains(rect):
                 return True
         return False
 
     @staticmethod
-    def get_tooltip_rect(widget: QWidget, placement: TooltipPlacement,
-                         size: QSize, triangle_size: int) -> QRect:
+    def __get_tooltip_rect(widget: QWidget, placement: TooltipPlacement,
+                           size: QSize, triangle_size: int) -> QRect:
         top_level_parent = Utils.get_top_level_parent(widget)
         widget_pos = top_level_parent.mapToGlobal(widget.pos())
         rect = QRect()

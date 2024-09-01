@@ -401,7 +401,9 @@ class Tooltip(TooltipInterface):
 
         # Calculate actual tooltip placement
         if self.__placement == TooltipPlacement.AUTO:
-            self.__actual_placement = PlacementUtils.get_optimal_placement(self.__widget)
+            self.__actual_placement = PlacementUtils.get_optimal_placement(self.__widget,
+                                                                           QSize(body_width, body_height),
+                                                                           self.__triangle_size)
         else:
             self.__actual_placement = self.__placement
             # Calculate fallback placement
