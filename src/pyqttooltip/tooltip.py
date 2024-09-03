@@ -1,5 +1,5 @@
 import math
-from qtpy.QtWidgets import QWidget, QLabel, QGraphicsOpacityEffect
+from qtpy.QtWidgets import QWidget, QLabel, QGraphicsOpacityEffect, QWIDGETSIZE_MAX
 from qtpy.QtCore import Qt, Signal, QMargins, QPoint, QSize, QTimer, QPropertyAnimation, QEasingCurve
 from qtpy.QtGui import QColor, QFont
 from .tooltip_interface import TooltipInterface
@@ -248,6 +248,10 @@ class Tooltip(TooltipInterface):
 
     def setTextCenteringEnabled(self, enabled: bool):
         self.__text_centering_enabled = enabled
+        if enabled:
+            self.__text_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        else:
+            self.__text_widget.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.__update_ui()
 
     def getBorderRadius(self) -> int:
@@ -390,14 +394,37 @@ class Tooltip(TooltipInterface):
 
     def __update_ui(self):
         # Calculate text width and height
+        self.__text_widget.setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX)
         font_metrics = self.__text_widget.fontMetrics()
         bounding_rect = font_metrics.boundingRect(self.__text)
-        text_width = bounding_rect.width() + 3
+        text_width = bounding_rect.width() + 2
         text_height = bounding_rect.height()
 
         # Calculate body width and height
         body_width = self.__margins.left() + text_width + self.__margins.right()
         body_height = self.__margins.top() + text_height + self.__margins.bottom()
+
+        # Handle width greater than maximum width
+        if body_width > self.maximumWidth():
+            self.__text_widget.setWordWrap(True)
+            text_width = self.maximumWidth() - self.__margins.left() - self.__margins.right()
+            text_height = self.__text_widget.heightForWidth(text_width)
+
+            # Minimize text width for calculated text height
+            new_text_height = self.__text_widget.heightForWidth(text_width - 1)
+            new_text_width = text_width
+            while new_text_height == text_height:
+                new_text_width -= 1
+                new_text_height = self.__text_widget.heightForWidth(new_text_width)
+            text_width = new_text_width + 1
+
+        # Recalculate body width and height
+        body_width = self.__margins.left() + text_width + self.__margins.right()
+        body_height = self.__margins.top() + text_height + self.__margins.bottom()
+
+        # Handle height greater than maximum height
+        if body_height > self.maximumHeight():
+            body_height = self.maximumHeight()
 
         # Calculate actual tooltip placement
         if self.__placement == TooltipPlacement.AUTO:
