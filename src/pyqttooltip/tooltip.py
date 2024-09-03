@@ -31,27 +31,27 @@ class Tooltip(TooltipInterface):
         self.__placement = TooltipPlacement.AUTO
         self.__fallback_placements = []
         self.__triangle_enabled = True
-        self.__triangle_size = 7
+        self.__triangle_size = 5
         self.__offsets = {
             TooltipPlacement.LEFT:   QPoint(0, 0),
             TooltipPlacement.RIGHT:  QPoint(0, 0),
             TooltipPlacement.TOP:    QPoint(0, 0),
             TooltipPlacement.BOTTOM: QPoint(0, 0)
         }
-        self.__show_delay = 250
-        self.__hide_delay = 250
-        self.__fade_in_duration = 100
-        self.__fade_out_duration = 100
+        self.__show_delay = 50
+        self.__hide_delay = 50
+        self.__fade_in_duration = 150
+        self.__fade_out_duration = 150
         self.__fade_in_easing_curve = QEasingCurve.Type.Linear
         self.__fade_out_easing_curve = QEasingCurve.Type.Linear
         self.__text_centering_enabled = True
-        self.__border_radius = 0
+        self.__border_radius = 2
         self.__border_width = 0
-        self.__background_color = QColor('#000000')
-        self.__text_color = QColor('#FFFFFF')
+        self.__background_color = QColor('#111214')
+        self.__text_color = QColor('#CFD2D5')
         self.__border_color = QColor('#403E41')
-        self.__font = QFont('Arial', 9)
-        self.__margins = QMargins(10, 5, 10, 5)
+        self.__font = QFont('Arial', 9, QFont.Weight.Bold)
+        self.__margins = QMargins(12, 8, 12, 7)
 
         self.__actual_placement = None
         self.__current_opacity = 0.0
