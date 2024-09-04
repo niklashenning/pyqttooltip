@@ -13,3 +13,12 @@ class Utils:
         while parent.parent() is not None:
             parent = parent.parent()
         return parent
+
+    @staticmethod
+    def get_parents(widget: QWidget) -> list[QWidget]:
+        parents = []
+
+        while widget.parent() is not None:
+            parents.append(widget.parent())
+            widget = widget.parent()
+        return parents

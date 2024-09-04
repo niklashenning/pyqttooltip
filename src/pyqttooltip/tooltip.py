@@ -1,6 +1,7 @@
 import math
 from qtpy.QtWidgets import QWidget, QLabel, QGraphicsOpacityEffect, QWIDGETSIZE_MAX
-from qtpy.QtCore import Qt, Signal, QMargins, QPoint, QSize, QTimer, QPropertyAnimation, QEasingCurve
+from qtpy.QtCore import (Qt, Signal, QMargins, QPoint, QSize, QTimer,
+                         QPropertyAnimation, QEasingCurve, QEvent, QObject)
 from qtpy.QtGui import QColor, QFont
 from .tooltip_interface import TooltipInterface
 from .tooltip_triangle import TooltipTriangle
@@ -55,6 +56,7 @@ class Tooltip(TooltipInterface):
 
         self.__actual_placement = None
         self.__current_opacity = 0.0
+        self.__watched_widgets = [self.__widget] if self.__widget else []
 
         # Widget settings
         self.setWindowFlags(Qt.WindowType.ToolTip |
@@ -74,10 +76,6 @@ class Tooltip(TooltipInterface):
         self.__text_widget = QLabel(self.__tooltip_body)
         self.__text_widget.setText(text)
         self.__text_widget.setFont(self.__font)
-
-        # Install event filter on widget
-        if self.__widget is not None:
-            self.__widget.installEventFilter(self)
 
         # Init delay timers
         self.__show_delay_timer = QTimer(self)
@@ -109,25 +107,43 @@ class Tooltip(TooltipInterface):
         self.__fade_out_animation.valueChanged.connect(self.__update_current_opacity)
         self.__fade_out_animation.finished.connect(self.__hide)
 
-        # Init stylesheet
+        # Init stylesheet and event filters
         self.__update_stylesheet()
+        self.__install_event_filters()
 
-    def eventFilter(self, watched, event):
-        if watched == self.__widget:
+    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+        if event.type() == event.Type.HoverEnter and watched == self.__widget:
             # Mouse enters widget
-            if event.type() == event.Type.HoverEnter:
-                self.show()
+            self.show()
+        elif event.type() == event.Type.HoverLeave and watched == self.__widget:
             # Mouse leaves widget
-            elif event.type() == event.Type.HoverLeave:
-                self.hide()
+            self.hide()
+
+        # Widget or parent moved, resized, shown or hidden
+        if (event.type() == event.Type.Move or event.type() == event.Type.Resize
+                or event.type() == event.Type.Show or event.type() == event.Type.Hide):
+            self.__update_ui()
+
+        # One of the parents changed
+        if event.type() == event.Type.ParentChange:
+            self.__install_event_filters()
+
+        # Parent or widget deleted
+        if event.type() == event.Type.DeferredDelete:
+            self.__install_event_filters()
+            self.hide()
+            if watched == self.__widget:
+                self.__widget = None
         return False
 
     def getWidget(self) -> QWidget:
         return self.__widget
 
     def setWidget(self, widget: QWidget):
-        # TODO: uninstall and reinstall event filter (and handle visible tooltip)
+        if self.__current_opacity != 0:
+            super().hide()
         self.__widget = widget
+        self.__install_event_filters()
 
     def getText(self) -> str:
         return self.__text
@@ -493,3 +509,18 @@ class Tooltip(TooltipInterface):
         self.__triangle_widget.move(tooltip_triangle_pos)
         self.resize(width, height)
         self.move(tooltip_pos)
+
+    def __install_event_filters(self):
+        self.__remove_event_filters()
+        if not self.__widget:
+            return
+        self.__watched_widgets.append(self.__widget)
+        self.__watched_widgets += Utils.get_parents(self.__widget)
+
+        for widget in self.__watched_widgets:
+            widget.installEventFilter(self)
+
+    def __remove_event_filters(self):
+        for widget in self.__watched_widgets:
+            widget.removeEventFilter(self)
+        self.__watched_widgets.clear()
