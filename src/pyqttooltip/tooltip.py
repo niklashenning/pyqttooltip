@@ -60,9 +60,9 @@ class Tooltip(TooltipInterface):
 
         # Widget settings
         self.setWindowFlags(Qt.WindowType.ToolTip |
-                            Qt.WindowType.FramelessWindowHint)
+                            Qt.WindowType.FramelessWindowHint |
+                            Qt.WindowType.WindowTransparentForInput)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         # Opacity effect for fading animations
