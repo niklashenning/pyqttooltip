@@ -31,7 +31,10 @@ class PlacementUtils:
         for space, placement in sorted(space_placement_map.items(), reverse=True):
             if not optimal_placement:
                 optimal_placement = placement
-            tooltip_rect = PlacementUtils.__get_tooltip_rect(widget, placement, size, triangle_size, offsets)
+
+            tooltip_rect = PlacementUtils.__get_tooltip_rect(
+                widget, placement, size, triangle_size, offsets
+            )
             if PlacementUtils.__rect_contained_by_screen(tooltip_rect):
                 return placement
 
@@ -41,8 +44,9 @@ class PlacementUtils:
     def get_fallback_placement(widget: QWidget, current_placement: TooltipPlacement, fallback_placements:
                                list[TooltipPlacement], size: QSize, triangle_size: int, offsets:
                                dict[TooltipPlacement, QPoint]) -> TooltipPlacement | None:
-        tooltip_rect = PlacementUtils.__get_tooltip_rect(widget, current_placement,
-                                                         size, triangle_size, offsets)
+        tooltip_rect = PlacementUtils.__get_tooltip_rect(
+            widget, current_placement, size, triangle_size, offsets
+        )
 
         # Return None if current placement is valid
         if PlacementUtils.__rect_contained_by_screen(tooltip_rect):
@@ -52,8 +56,9 @@ class PlacementUtils:
         for placement in fallback_placements:
             if placement == current_placement or placement == TooltipPlacement.AUTO:
                 continue
-            tooltip_rect = PlacementUtils.__get_tooltip_rect(widget, placement, size,
-                                                             triangle_size, offsets)
+            tooltip_rect = PlacementUtils.__get_tooltip_rect(
+                widget, placement, size, triangle_size, offsets
+            )
             if PlacementUtils.__rect_contained_by_screen(tooltip_rect):
                 return placement
         return None
