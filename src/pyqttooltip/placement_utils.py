@@ -79,7 +79,7 @@ class PlacementUtils:
 
         if placement == TooltipPlacement.TOP:
             rect.setX(int(widget_pos.x() + widget.width() / 2 - size.width() / 2) + offsets[placement].x())
-            rect.setY(widget_pos.y() - size.height() - triangle_size + -offsets[placement].y())
+            rect.setY(widget_pos.y() - size.height() - triangle_size + offsets[placement].y())
             rect.setRight(rect.x() + size.width())
             rect.setBottom(rect.y() + size.height() + triangle_size)
         elif placement == TooltipPlacement.BOTTOM:
@@ -88,7 +88,7 @@ class PlacementUtils:
             rect.setRight(rect.x() + size.width())
             rect.setBottom(rect.y() + size.height() + triangle_size)
         elif placement == TooltipPlacement.LEFT:
-            rect.setX(widget_pos.x() - size.width() - triangle_size + -offsets[placement].x())
+            rect.setX(widget_pos.x() - size.width() - triangle_size + offsets[placement].x())
             rect.setY(int(widget_pos.y() + widget.height() / 2 - size.width() / 2) + offsets[placement].y())
             rect.setRight(rect.x() + size.width() + triangle_size)
             rect.setBottom(rect.y() + size.height())
