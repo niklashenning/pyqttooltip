@@ -1,0 +1,2 @@
+
+DROP_SHADOW_SIZE = 10

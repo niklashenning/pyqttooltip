@@ -22,3 +22,6 @@ class TooltipInterface(QWidget):
 
     def getBorderColor(self) -> QColor:
         pass
+
+    def getDropShadowStrength(self) -> float:
+        pass

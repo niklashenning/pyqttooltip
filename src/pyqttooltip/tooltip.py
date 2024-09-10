@@ -8,8 +8,10 @@ from qtpy.QtGui import QColor, QFont
 from .tooltip_interface import TooltipInterface
 from .tooltip_triangle import TooltipTriangle
 from .enums import TooltipPlacement
+from .drop_shadow import DropShadow
 from .placement_utils import PlacementUtils
 from .utils import Utils
+from .constants import *
 
 
 class Tooltip(TooltipInterface):
@@ -55,6 +57,8 @@ class Tooltip(TooltipInterface):
         self.__border_color = QColor('#403E41')
         self.__font = QFont('Arial', 9, QFont.Weight.Bold)
         self.__margins = QMargins(12, 8, 12, 7)
+        self.__drop_shadow_enabled = True
+        self.__drop_shadow_strength = 2.5
 
         self.__actual_placement = None
         self.__current_opacity = 0.0
@@ -74,6 +78,7 @@ class Tooltip(TooltipInterface):
         self.setGraphicsEffect(self.__opacity_effect)
 
         # Create widgets
+        self.__drop_shadow_widget = DropShadow(self)
         self.__tooltip_body = QLabel(self)
         self.__triangle_widget = TooltipTriangle(self)
 
@@ -354,6 +359,20 @@ class Tooltip(TooltipInterface):
         self.__margins.setBottom(margin)
         self.__update_ui()
 
+    def isDropShadowEnabled(self) -> bool:
+        return self.__drop_shadow_enabled
+
+    def setDropShadowEnabled(self, on: bool):
+        self.__drop_shadow_enabled = on
+        self.__update_ui()
+
+    def getDropShadowStrength(self) -> float:
+        return self.__drop_shadow_strength
+
+    def setDropShadowStrength(self, strength: float):
+        self.__drop_shadow_strength = strength
+        self.__drop_shadow_widget.update()
+
     def show(self):
         self.__duration_timer.stop()
         self.__update_ui()
@@ -524,10 +543,32 @@ class Tooltip(TooltipInterface):
         self.__text_widget.resize(text_size)
         self.__text_widget.move(self.__margins.left(), self.__margins.top())
         self.__tooltip_body.resize(body_size)
-        self.__tooltip_body.move(tooltip_body_pos)
-        self.__triangle_widget.move(tooltip_triangle_pos)
-        self.resize(size)
-        self.move(tooltip_pos)
+
+        # Adjust positions and sizes for drop shadow if enabled
+        if self.__drop_shadow_enabled:
+            self.__tooltip_body.move(
+                tooltip_body_pos.x() + DROP_SHADOW_SIZE, tooltip_body_pos.y() + DROP_SHADOW_SIZE
+            )
+            self.__triangle_widget.move(
+                tooltip_triangle_pos.x() + DROP_SHADOW_SIZE, tooltip_triangle_pos.y() + DROP_SHADOW_SIZE
+            )
+            self.__drop_shadow_widget.resize(
+                QSize(body_size.width() + DROP_SHADOW_SIZE * 2, body_size.height() + DROP_SHADOW_SIZE * 2)
+            )
+            self.__drop_shadow_widget.move(tooltip_body_pos)
+            self.__drop_shadow_widget.update()
+            self.__drop_shadow_widget.setVisible(True)
+            self.resize(
+                max(size.width(), self.__drop_shadow_widget.width() + tooltip_pos.x()),
+                max(size.height(), self.__drop_shadow_widget.height() + tooltip_pos.y())
+            )
+            self.move(tooltip_pos.x() - DROP_SHADOW_SIZE, tooltip_pos.y() - DROP_SHADOW_SIZE)
+        else:
+            self.__tooltip_body.move(tooltip_body_pos)
+            self.__triangle_widget.move(tooltip_triangle_pos)
+            self.resize(size)
+            self.move(tooltip_pos)
+            self.__drop_shadow_widget.setVisible(False)
 
     def __install_event_filters(self):
         self.__remove_event_filters()
