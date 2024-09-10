@@ -14,7 +14,7 @@ class TooltipInterface(QWidget):
     def getActualPlacement(self) -> TooltipPlacement | None:
         pass
 
-    def getBorderWidth(self) -> int:
+    def isBorderEnabled(self) -> bool:
         pass
 
     def getBackgroundColor(self) -> QColor:

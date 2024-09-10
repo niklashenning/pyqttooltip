@@ -30,60 +30,63 @@ class TooltipTriangle(QWidget):
         actual_placement = self.tooltip.getActualPlacement()
         background_color = self.tooltip.getBackgroundColor()
         border_color = self.tooltip.getBorderColor()
-        border_width = self.tooltip.getBorderWidth()
+        border_enabled = self.tooltip.isBorderEnabled()
+        border_width = 1 if border_enabled else 0
 
         # Init painter
         painter = QPainter()
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.begin(self)
 
-        # Rotate widget by 180° depending on placement
+        # Draw triangle shape depending on tooltip placement
+        painter.setPen(border_color if border_enabled else background_color)
+
         if actual_placement == TooltipPlacement.RIGHT:
-            transform = QTransform()
-            transform.translate(self.width() / 2 - 0.5, self.height() / 2)
-            transform.rotate(180)
-            transform.translate(-self.width() / 2, -self.height() / 2)
-            painter.setTransform(transform)
-        if actual_placement == TooltipPlacement.BOTTOM:
-            transform = QTransform()
-            if border_width == 1:
-                transform.translate(self.width() / 2 + 0.25, self.height() / 2 - 0.5)
-            else:
-                transform.translate(self.width() / 2, self.height() / 2)
-            transform.rotate(180)
-            transform.translate(-self.width() / 2, -self.height() / 2)
-            painter.setTransform(transform)
+            start = QPoint(0, size - 1)
+            painter.drawPoint(start)
 
-        # Draw triangle shape
-        path = QPainterPath()
+            for i in range(1, size + border_width):
+                painter.setPen(background_color)
+                painter.drawLine(QPoint(start.x() + i, start.y() - i), QPoint(start.x() + i, start.y() + i))
+                if border_width > 0:
+                    painter.setPen(border_color)
+                    painter.drawPoint(start.x() + i, start.y() - i)
+                    painter.drawPoint(start.x() + i, start.y() + i)
 
-        if actual_placement == TooltipPlacement.BOTTOM or actual_placement == TooltipPlacement.TOP:
-            path.moveTo(0, 0)
-            path.lineTo(size, size)
-            path.lineTo(size * 2, 0)
-            painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(background_color)
-            painter.drawPath(path)
+        elif actual_placement == TooltipPlacement.LEFT:
+            start = QPoint(size - 1 + border_width, size - 1)
+            painter.drawPoint(start)
 
-            if border_width > 0:
-                painter.setPen(QPen(border_color, border_width))
-                painter.setBrush(Qt.BrushStyle.NoBrush)
-                painter.drawLine(QPoint(0, 0), QPoint(size, size))
-                painter.drawLine(QPoint(size * 2, 0), QPoint(size, size))
+            for i in range(1, size + border_width):
+                painter.setPen(background_color)
+                painter.drawLine(QPoint(start.x() - i, start.y() - i), QPoint(start.x() - i, start.y() + i))
+                if border_width > 0:
+                    painter.setPen(border_color)
+                    painter.drawPoint(start.x() - i, start.y() - i)
+                    painter.drawPoint(start.x() - i, start.y() + i)
 
-        elif actual_placement == TooltipPlacement.LEFT or actual_placement == TooltipPlacement.RIGHT:
-            path.moveTo(0, 0)
-            path.lineTo(size, size)
-            path.lineTo(0, size * 2)
-            painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(background_color)
-            painter.drawPath(path)
+        elif actual_placement == TooltipPlacement.TOP:
+            start = QPoint(size - 1, size - 1 + border_width)
+            painter.drawPoint(start)
 
-            if border_width > 0:
-                painter.setPen(QPen(border_color, border_width))
-                painter.setBrush(Qt.BrushStyle.NoBrush)
-                painter.drawLine(QPoint(0, 0), QPoint(size, size))
-                painter.drawLine(QPoint(0, size * 2), QPoint(size, size))
+            for i in range(1, size + border_width):
+                painter.setPen(background_color)
+                painter.drawLine(QPoint(start.x() - i, start.y() - i), QPoint(start.x() + i, start.y() - i))
+                if border_width > 0:
+                    painter.setPen(border_color)
+                    painter.drawPoint(start.x() - i, start.y() - i)
+                    painter.drawPoint(start.x() + i, start.y() - i)
+
+        elif actual_placement == TooltipPlacement.BOTTOM:
+            start = QPoint(size - 1, 0)
+            painter.drawPoint(start)
+
+            for i in range(1, size + border_width):
+                painter.setPen(background_color)
+                painter.drawLine(QPoint(start.x() - i, start.y() + i), QPoint(start.x() + i, start.y() + i))
+                if border_width > 0:
+                    painter.setPen(border_color)
+                    painter.drawPoint(start.x() - i, start.y() + i)
+                    painter.drawPoint(start.x() + i, start.y() + i)
 
         painter.end()
 
@@ -92,14 +95,14 @@ class TooltipTriangle(QWidget):
         enabled = self.tooltip.isTriangleEnabled()
         size = self.tooltip.getTriangleSize()
         actual_placement = self.tooltip.getActualPlacement()
-        border_width = self.tooltip.getBorderWidth()
+        border_width = 1 if self.tooltip.isBorderEnabled() > 0 else 0
 
-        # Resize depending on parameters
+        # Resize depending on placement
         if enabled:
             if actual_placement == TooltipPlacement.BOTTOM or actual_placement == TooltipPlacement.TOP:
-                self.resize(size * 2, size + math.ceil(border_width / 2))
+                self.resize(size * 2 - 1, size + border_width)
             elif actual_placement == TooltipPlacement.LEFT or actual_placement == TooltipPlacement.RIGHT:
-                self.resize(size + math.ceil(border_width / 2), size * 2)
+                self.resize(size + border_width, size * 2 - 1)
         else:
             self.resize(0, 0)
 
