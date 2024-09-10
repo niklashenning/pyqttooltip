@@ -59,6 +59,7 @@ class Tooltip(TooltipInterface):
         self.__margins = QMargins(12, 8, 12, 7)
         self.__drop_shadow_enabled = True
         self.__drop_shadow_strength = 2.5
+        self.__maximum_width = QWIDGETSIZE_MAX
 
         self.__actual_placement = None
         self.__current_opacity = 0.0
@@ -362,8 +363,8 @@ class Tooltip(TooltipInterface):
     def isDropShadowEnabled(self) -> bool:
         return self.__drop_shadow_enabled
 
-    def setDropShadowEnabled(self, on: bool):
-        self.__drop_shadow_enabled = on
+    def setDropShadowEnabled(self, enabled: bool):
+        self.__drop_shadow_enabled = enabled
         self.__update_ui()
 
     def getDropShadowStrength(self) -> float:
@@ -372,6 +373,21 @@ class Tooltip(TooltipInterface):
     def setDropShadowStrength(self, strength: float):
         self.__drop_shadow_strength = strength
         self.__drop_shadow_widget.update()
+
+    def maximumSize(self) -> QSize:
+        return QSize(self.__maximum_width, self.maximumHeight())
+
+    def setMaximumSize(self, max_size: QSize):
+        self.__maximum_width = max_size.width()
+        self.setMaximumHeight(max_size.height())
+        self.__update_ui()
+
+    def maximumWidth(self) -> int:
+        return self.__maximum_width
+
+    def setMaximumWidth(self, max_width: int):
+        self.__maximum_width = max_width
+        self.__update_ui()
 
     def show(self):
         self.__duration_timer.stop()
@@ -453,9 +469,9 @@ class Tooltip(TooltipInterface):
         )
 
         # Handle width greater than maximum width
-        if body_size.width() > self.maximumWidth():
+        if body_size.width() > self.__maximum_width:
             self.__text_widget.setWordWrap(True)
-            text_size.setWidth(self.maximumWidth() - self.__margins.left() - self.__margins.right())
+            text_size.setWidth(self.__maximum_width - self.__margins.left() - self.__margins.right())
             text_size.setHeight(self.__text_widget.heightForWidth(text_size.width()))
 
             # Minimize text width for calculated text height
@@ -558,7 +574,7 @@ class Tooltip(TooltipInterface):
             self.__drop_shadow_widget.move(tooltip_body_pos)
             self.__drop_shadow_widget.update()
             self.__drop_shadow_widget.setVisible(True)
-            self.resize(
+            self.setFixedSize(
                 max(size.width(), self.__drop_shadow_widget.width() + tooltip_pos.x()),
                 max(size.height(), self.__drop_shadow_widget.height() + tooltip_pos.y())
             )
@@ -566,7 +582,7 @@ class Tooltip(TooltipInterface):
         else:
             self.__tooltip_body.move(tooltip_body_pos)
             self.__triangle_widget.move(tooltip_triangle_pos)
-            self.resize(size)
+            self.setFixedSize(size)
             self.move(tooltip_pos)
             self.__drop_shadow_widget.setVisible(False)
 
