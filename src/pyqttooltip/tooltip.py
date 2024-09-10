@@ -59,6 +59,7 @@ class Tooltip(TooltipInterface):
         self.__margins = QMargins(12, 8, 12, 7)
         self.__drop_shadow_enabled = True
         self.__drop_shadow_strength = 2.5
+        self.__showing_on_disabled = False
         self.__maximum_width = QWIDGETSIZE_MAX
 
         self.__actual_placement = None
@@ -124,7 +125,10 @@ class Tooltip(TooltipInterface):
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
         if event.type() == event.Type.HoverEnter and watched == self.__widget:
             # Mouse enters widget
-            self.show()
+            if self.__widget and self.__widget.isEnabled():
+                self.show()
+            elif self.__widget and not self.__widget.isEnabled() and self.__showing_on_disabled:
+                self.show()
         elif event.type() == event.Type.HoverLeave and watched == self.__widget:
             # Mouse leaves widget
             self.hide()
@@ -373,6 +377,12 @@ class Tooltip(TooltipInterface):
     def setDropShadowStrength(self, strength: float):
         self.__drop_shadow_strength = strength
         self.__drop_shadow_widget.update()
+
+    def isShowingOnDisabled(self) -> bool:
+        return self.__showing_on_disabled
+
+    def setShowingOnDisabled(self, on: bool):
+        self.__showing_on_disabled = on
 
     def maximumSize(self) -> QSize:
         return QSize(self.__maximum_width, self.maximumHeight())
