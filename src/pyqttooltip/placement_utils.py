@@ -9,6 +9,16 @@ class PlacementUtils:
     @staticmethod
     def get_optimal_placement(widget: QWidget, size: QSize, triangle_size: int,
                               offsets: dict[TooltipPlacement, QPoint]) -> TooltipPlacement:
+        """Calculate the optimal placement of a tooltip based on the widget,
+        size, triangle size, and offsets.
+
+        :param widget: widget of the tooltip
+        :param size: size of the tooltip
+        :param triangle_size: size of the triangle
+        :param offsets: offsets of the tooltip
+        :return: optimal placement
+        """
+
         top_level_parent = Utils.get_top_level_parent(widget)
         top_level_parent_pos = top_level_parent.pos()
         top_level_parent_geometry = top_level_parent.geometry()
@@ -44,6 +54,18 @@ class PlacementUtils:
     def get_fallback_placement(widget: QWidget, current_placement: TooltipPlacement, fallback_placements:
                                list[TooltipPlacement], size: QSize, triangle_size: int, offsets:
                                dict[TooltipPlacement, QPoint]) -> TooltipPlacement | None:
+        """Calculate fallback placement if the current placement would
+        lead to a tooltip that doesn't entirely fit on the screen
+        
+        :param widget: widget of the tooltip
+        :param current_placement: current placement of the tooltip
+        :param fallback_placements: fallback placements that are available
+        :param size: size of the tooltip
+        :param triangle_size: size of the triangle
+        :param offsets: offsets of the tooltip
+        :return: fallback placement (None if current placement is valid)
+        """
+
         tooltip_rect = PlacementUtils.__get_tooltip_rect(
             widget, current_placement, size, triangle_size, offsets
         )
@@ -65,6 +87,12 @@ class PlacementUtils:
 
     @staticmethod
     def __rect_contained_by_screen(rect: QRect) -> bool:
+        """Check if a rect is fully contained by a single screen
+
+        :param rect: rect that should be checked
+        :return: whether the rect is contained by a screen
+        """
+
         for screen in QApplication.screens():
             if screen.geometry().contains(rect):
                 return True
@@ -73,10 +101,22 @@ class PlacementUtils:
     @staticmethod
     def __get_tooltip_rect(widget: QWidget, placement: TooltipPlacement, size: QSize,
                            triangle_size: int, offsets: dict[TooltipPlacement, QPoint]) -> QRect:
+        """Get the rect of a tooltip based on the widget position,
+        placement, size, triangle size, and offsets of the tooltip
+
+        :param widget: widget of the tooltip
+        :param placement: placement of the tooltip
+        :param size: size of the tooltip
+        :param triangle_size: size of the triangle
+        :param offsets: offsets of the tooltip
+        :return: rect of the tooltip
+        """
+
         top_level_parent = Utils.get_top_level_parent(widget)
         widget_pos = top_level_parent.mapToGlobal(widget.pos())
         rect = QRect()
 
+        # Calculate rect depending on placement
         if placement == TooltipPlacement.TOP:
             rect.setX(int(widget_pos.x() + widget.width() / 2 - size.width() / 2) + offsets[placement].x())
             rect.setY(widget_pos.y() - size.height() - triangle_size + offsets[placement].y())

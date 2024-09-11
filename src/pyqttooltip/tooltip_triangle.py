@@ -1,7 +1,7 @@
 import math
 from qtpy.QtWidgets import QWidget
 from qtpy.QtGui import QPainter, QPen, QPainterPath, QTransform
-from qtpy.QtCore import Qt, QPoint
+from qtpy.QtCore import Qt, QPoint, QEvent
 from .tooltip_interface import TooltipInterface
 from .enums import TooltipPlacement
 
@@ -18,7 +18,14 @@ class TooltipTriangle(QWidget):
 
         self.tooltip = tooltip
 
-    def paintEvent(self, event):
+    def paintEvent(self, event: QEvent):
+        """Paint event that paints the triangle based on the current
+        settings of the tooltip
+
+        :param event: event that is received
+        """
+
+        # Ignore if triangle is disabled or actual placement not yet set
         if not self.tooltip.isTriangleEnabled():
             return
 
@@ -36,17 +43,18 @@ class TooltipTriangle(QWidget):
         # Init painter
         painter = QPainter()
         painter.begin(self)
-
-        # Draw triangle shape depending on tooltip placement
         painter.setPen(border_color if border_enabled else background_color)
 
+        # Draw triangle shape depending on tooltip placement
         if actual_placement == TooltipPlacement.RIGHT:
             start = QPoint(0, size - 1)
             painter.drawPoint(start)
 
             for i in range(1, size + border_width):
                 painter.setPen(background_color)
-                painter.drawLine(QPoint(start.x() + i, start.y() - i), QPoint(start.x() + i, start.y() + i))
+                painter.drawLine(
+                    QPoint(start.x() + i, start.y() - i), QPoint(start.x() + i, start.y() + i)
+                )
                 if border_width > 0:
                     painter.setPen(border_color)
                     painter.drawPoint(start.x() + i, start.y() - i)
@@ -58,7 +66,9 @@ class TooltipTriangle(QWidget):
 
             for i in range(1, size + border_width):
                 painter.setPen(background_color)
-                painter.drawLine(QPoint(start.x() - i, start.y() - i), QPoint(start.x() - i, start.y() + i))
+                painter.drawLine(
+                    QPoint(start.x() - i, start.y() - i), QPoint(start.x() - i, start.y() + i)
+                )
                 if border_width > 0:
                     painter.setPen(border_color)
                     painter.drawPoint(start.x() - i, start.y() - i)
@@ -70,7 +80,9 @@ class TooltipTriangle(QWidget):
 
             for i in range(1, size + border_width):
                 painter.setPen(background_color)
-                painter.drawLine(QPoint(start.x() - i, start.y() - i), QPoint(start.x() + i, start.y() - i))
+                painter.drawLine(
+                    QPoint(start.x() - i, start.y() - i), QPoint(start.x() + i, start.y() - i)
+                )
                 if border_width > 0:
                     painter.setPen(border_color)
                     painter.drawPoint(start.x() - i, start.y() - i)
@@ -82,7 +94,9 @@ class TooltipTriangle(QWidget):
 
             for i in range(1, size + border_width):
                 painter.setPen(background_color)
-                painter.drawLine(QPoint(start.x() - i, start.y() + i), QPoint(start.x() + i, start.y() + i))
+                painter.drawLine(
+                    QPoint(start.x() - i, start.y() + i), QPoint(start.x() + i, start.y() + i)
+                )
                 if border_width > 0:
                     painter.setPen(border_color)
                     painter.drawPoint(start.x() - i, start.y() + i)
@@ -91,6 +105,8 @@ class TooltipTriangle(QWidget):
         painter.end()
 
     def update(self):
+        """Update the size of the triangle and call the paint event"""
+
         # Get parameters
         enabled = self.tooltip.isTriangleEnabled()
         size = self.tooltip.getTriangleSize()

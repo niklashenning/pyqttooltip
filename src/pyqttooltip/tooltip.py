@@ -123,6 +123,14 @@ class Tooltip(TooltipInterface):
         self.__install_event_filters()
 
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+        """Event filter that watched widget and all of its parents
+        and updates the tooltip or event filters when necessary
+
+        :param watched: object that is watched
+        :param event: event that is received
+        :return: whether further processing of the event is stopped
+        """
+
         if event.type() == event.Type.HoverEnter and watched == self.__widget:
             # Mouse enters widget
             if self.__widget and self.__widget.isEnabled():
@@ -151,112 +159,272 @@ class Tooltip(TooltipInterface):
         return False
 
     def getWidget(self) -> QWidget:
+        """Get the widget that triggers the tooltip
+
+        :return: widget
+        """
+
         return self.__widget
 
     def setWidget(self, widget: QWidget):
+        """Set the widget that triggers the tooltip
+
+        :param widget: new widget
+        """
+
         if self.__current_opacity != 0:
             super().hide()
         self.__widget = widget
         self.__install_event_filters()
 
     def getText(self) -> str:
+        """Get the text of the tooltip
+
+        :return: text
+        """
+
         return self.__text
 
     def setText(self, text: str):
+        """Set the text of the tooltip
+
+        :param text: new text
+        """
+
         self.__text = text
         self.__text_widget.setText(text)
         self.__update_ui()
 
     def getDuration(self) -> int:
+        """Get the duration of the tooltip. If the duration is 0,
+         the tooltip will stay open until the mouse leaves the widget.
+
+        :return: duration
+        """
+
         return self.__duration
 
     def setDuration(self, duration: int):
+        """Set the duration of the tooltip. If the duration is 0,
+         the tooltip will stay open until the mouse leaves the widget.
+
+        :param duration: new duration
+        """
+
         self.__duration = duration
         self.__duration_timer.setInterval(duration)
 
     def getPlacement(self) -> TooltipPlacement:
+        """Get the placement of the tooltip
+
+        :return: placement
+        """
+
         return self.__placement
 
     def setPlacement(self, placement: TooltipPlacement):
+        """Set the placement of the tooltip
+
+        :param placement: new placement
+        """
+
         self.__placement = placement
         self.__update_ui()
 
     def getActualPlacement(self) -> TooltipPlacement:
+        """Get the actual placement of the tooltip. This will be different
+        from the placement if the placement is TooltipPlacement.AUTO
+        or the tooltip is shown in a fallback placement.
+
+        :return: actual placement (LEFT / RIGHT / TOP / BOTTOM)
+        """
+
         return self.__actual_placement
 
     def getFallbackPlacements(self) -> list[TooltipPlacement]:
+        """Get the fallback placements of the tooltip. If the tooltip
+        doesn't fit on the screen with the main placement, one of the
+        fallback placements will be chosen instead.
+
+        :return: fallback placements
+        """
+
         return self.__fallback_placements
 
     def setFallbackPlacements(self, fallback_placements: list[TooltipPlacement]):
+        """Set the fallback placements of the tooltip. If the tooltip
+        doesn't fit on the screen with the main placement, one of the
+        fallback placements will be chosen instead.
+
+        :param fallback_placements: new fallback placements
+        """
+
         self.__fallback_placements = fallback_placements
         self.__update_ui()
 
     def isTriangleEnabled(self) -> bool:
+        """Get whether the triangle is enabled
+
+        :return: whether the triangle is enabled
+        """
+
         return self.__triangle_enabled
 
     def setTriangleEnabled(self, enabled: bool):
+        """Get whether the triangle should be enabled
+
+        :param enabled: whether the triangle should be enabled
+        """
+
         self.__triangle_enabled = enabled
         self.__update_ui()
 
     def getTriangleSize(self) -> int:
+        """Get the size of the triangle
+
+        :return: size
+        """
+
         return self.__triangle_size
 
     def setTriangleSize(self, size: int):
+        """Set the size of the triangle
+
+        :param size: new size
+        """
+
         self.__triangle_size = size
         self.__update_ui()
 
     def getOffsets(self) -> dict[TooltipPlacement, QPoint]:
+        """Get the offsets of the tooltip
+
+        :return: offsets
+        """
+
         return self.__offsets
 
     def getOffset(self, placement: TooltipPlacement) -> QPoint:
+        """Get a specific offset of the tooltip
+
+        :param placement: placement to get the offset for
+        :return: offset
+        """
+
         return self.__offsets[placement]
 
     def setOffsets(self, offsets: dict[TooltipPlacement, QPoint]):
+        """Set the offsets of the tooltip individually
+
+        :param offsets: dict with placements as the keys and offsets as values
+        """
+
         for placement, offset in offsets.items():
             self.__offsets[placement] = offset
         self.__update_ui()
 
     def setOffset(self, placement: TooltipPlacement, offset: QPoint):
+        """Set a specific offset of the tooltip
+
+        :param placement: placement to set the offset for
+        :param offset: new offset
+        """
+
         self.__offsets[placement] = offset
         self.__update_ui()
 
     def setOffsetAll(self, offset: QPoint):
+        """Set the offsets of all the placements to a value
+
+        :param offset: new offset for all the placements
+        """
+
         for placement, _ in self.__offsets.items():
             self.__offsets[placement] = offset
         self.__update_ui()
 
     def getShowDelay(self) -> int:
+        """Get the delay before the tooltip is starting to fade in
+
+        :return: delay
+        """
+
         return self.__show_delay
 
     def setShowDelay(self, delay: int):
+        """Set the delay before the tooltip is starting to fade in
+
+        :param delay: new delay
+        """
+
         self.__show_delay = delay
         self.__show_delay_timer.setInterval(delay)
 
     def getHideDelay(self) -> int:
+        """Get the delay before the tooltip is starting to fade out
+
+        :return: delay
+        """
+
         return self.__hide_delay
 
     def setHideDelay(self, delay: int):
+        """Set the delay before the tooltip is starting to fade out
+
+        :param delay: new delay
+        """
+
         self.__hide_delay = delay
         self.__hide_delay_timer.setInterval(delay)
 
     def getFadeInDuration(self) -> int:
+        """Get the duration of the fade in animation
+
+        :return: duration
+        """
+
         return self.__fade_in_duration
 
     def setFadeInDuration(self, duration: int):
+        """Set the duration of the fade in animation
+
+        :param duration: new duration
+        """
+
         self.__fade_in_duration = duration
         self.__fade_in_animation.setDuration(duration)
 
     def getFadeOutDuration(self) -> int:
+        """Get the duration of the fade out animation
+
+        :return: duration
+        """
+
         return self.__fade_out_duration
 
     def setFadeOutDuration(self, duration: int):
+        """Set the duration of the fade out animation
+
+        :param duration: new duration
+        """
+
         self.__fade_in_duration = duration
         self.__fade_out_animation.setDuration(duration)
 
     def getFadeInEasingCurve(self) -> QEasingCurve.Type:
+        """Get the easing curve of the fade in animation
+
+        :return: easing curve
+        """
+
         return self.__fade_out_easing_curve
 
     def setFadeInEasingCurve(self, easing_curve: QEasingCurve.Type | None):
+        """Set the easing curve of the fade in animation
+
+        :param easing_curve: new easing curve (or None)
+        """
+
         if easing_curve is None:
             easing_curve = QEasingCurve.Type.Linear
 
@@ -264,19 +432,39 @@ class Tooltip(TooltipInterface):
         self.__fade_in_animation.setEasingCurve(easing_curve)
 
     def getFadeOutEasingCurve(self) -> QEasingCurve.Type:
+        """Get the easing curve of the fade out animation
+
+        :return: easing curve
+        """
+
         return self.__fade_out_easing_curve
 
     def setFadeOutEasingCurve(self, easing_curve: QEasingCurve.Type | None):
+        """Set the easing curve of the fade out animation
+
+        :param easing_curve: new easing curve (or None)
+        """
+
         if easing_curve is None:
             easing_curve = QEasingCurve.Type.Linear
 
         self.__fade_out_easing_curve = easing_curve
         self.__fade_out_animation.setEasingCurve(easing_curve)
 
-    def isTextCenteringEnabled(self) -> int:
+    def isTextCenteringEnabled(self) -> bool:
+        """Get whether text centering is enabled
+
+        :return: whether text centering is enabled
+        """
+
         return self.__text_centering_enabled
 
     def setTextCenteringEnabled(self, enabled: bool):
+        """Set whether text centering should be enabled
+
+        :param enabled: whether text centering should be enabled
+        """
+
         self.__text_centering_enabled = enabled
         if enabled:
             self.__text_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -285,167 +473,350 @@ class Tooltip(TooltipInterface):
         self.__update_ui()
 
     def getBorderRadius(self) -> int:
+        """Get the border radius of the tooltip
+
+        :return: border radius
+        """
+
         return self.__border_radius
 
     def setBorderRadius(self, border_radius: int):
+        """Set the border radius of the tooltip
+
+        :param border_radius: new border radius
+        """
+
         self.__border_radius = border_radius
         self.__update_stylesheet()
         self.__update_ui()
 
     def isBorderEnabled(self) -> bool:
+        """Get whether the border is enabled
+
+        :return: whether the border is enabled
+        """
+
         return self.__border_enabled
 
     def setBorderEnabled(self, enabled: bool):
+        """Set whether the border should be enabled
+
+        :param enabled: whether the border should be enabled
+        """
+
         self.__border_enabled = enabled
         self.__update_stylesheet()
         self.__update_ui()
 
     def getBackgroundColor(self) -> QColor:
+        """Get the background color of the tooltip
+
+        :return: background color
+        """
+
         return self.__background_color
 
     def setBackgroundColor(self, color: QColor):
+        """Set the background color of the tooltip
+
+        :param color: new background color
+        """
+
         self.__background_color = color
         self.__update_stylesheet()
         self.__update_ui()
 
     def getTextColor(self) -> QColor:
+        """Get the text color of the tooltip
+
+        :return: text color
+        """
+
         return self.__text_color
 
     def setTextColor(self, color: QColor):
+        """Set the text color of the tooltip
+
+        :param color: new text color
+        """
+
         self.__text_color = color
         self.__update_stylesheet()
         self.__update_ui()
 
     def getBorderColor(self) -> QColor:
+        """Get the border color of the tooltip
+
+        :return: border color
+        """
+
         return self.__border_color
 
     def setBorderColor(self, color: QColor):
+        """Set the border color of the tooltip
+
+        :param color: new border color
+        """
+
         self.__border_color = color
         self.__update_stylesheet()
         self.__update_ui()
 
     def getOpacity(self) -> float:
+        """Get the opacity of the tooltip
+
+        :return: opacity
+        """
+
         return self.windowOpacity()
 
     def setOpacity(self, opacity: float):
+        """Set the opacity of the tooltip
+
+        :param opacity: new opacity
+        """
+
         self.setWindowOpacity(opacity)
 
     def font(self) -> QFont:
+        """Get the font of the tooltip
+
+        :return: font
+        """
+
         return self.getFont()
 
     def getFont(self) -> QFont:
+        """Get the font of the tooltip
+
+        :return: font
+        """
+
         return self.__font
 
     def setFont(self, font: QFont):
+        """Set the font of the tooltip
+
+        :param font: new font
+        """
+
         self.__font = font
         self.__text_widget.setFont(font)
         self.__update_ui()
 
     def getMargins(self) -> QMargins:
+        """Get the margins of the tooltip
+
+        :return: margins
+        """
+
         return self.__margins
 
     def setMargins(self, margins: QMargins):
+        """Get the margins of the tooltip
+
+        :param margins: new margins
+        """
+
         self.__margins = margins
         self.__update_ui()
 
     def setMarginLeft(self, margin: int):
+        """Set the left margin of the tooltip
+
+        :param margin: new margin
+        """
+
         self.__margins.setLeft(margin)
         self.__update_ui()
 
     def setMarginTop(self, margin: int):
+        """Set the top margin of the tooltip
+
+        :param margin: new margin
+        """
+
         self.__margins.setTop(margin)
         self.__update_ui()
 
     def setMarginRight(self, margin: int):
+        """Set the right margin of the tooltip
+
+        :param margin: new margin
+        """
+
         self.__margins.setRight(margin)
         self.__update_ui()
 
     def setMarginBottom(self, margin: int):
+        """Set the bottom margin of the tooltip
+
+        :param margin: new margin
+        """
+
         self.__margins.setBottom(margin)
         self.__update_ui()
 
     def isDropShadowEnabled(self) -> bool:
+        """Get whether the drop shadow is enabled
+
+        :return: whether the drop shadow is enabled
+        """
+
         return self.__drop_shadow_enabled
 
     def setDropShadowEnabled(self, enabled: bool):
+        """Set whether the drop shadow should be enabled
+
+        :param enabled: whether the drop shadow should be enabled
+        """
+
         self.__drop_shadow_enabled = enabled
         self.__update_ui()
 
     def getDropShadowStrength(self) -> float:
+        """Get the strength of the drop shadow
+
+        :return: strength
+        """
+
         return self.__drop_shadow_strength
 
     def setDropShadowStrength(self, strength: float):
+        """Set the strength of the drop shadow
+
+        :param strength: new strength
+        """
+
         self.__drop_shadow_strength = strength
         self.__drop_shadow_widget.update()
 
     def isShowingOnDisabled(self) -> bool:
+        """Get whether the tooltip will also be shown on disabled widgets
+
+        :return: whether the tooltip will also be shown on disabled widgets
+        """
+
         return self.__showing_on_disabled
 
     def setShowingOnDisabled(self, on: bool):
+        """Set whether the tooltip should also be shown on disabled widgets
+
+        :param on: whether the tooltip should also be shown on disabled widgets
+        """
+
         self.__showing_on_disabled = on
 
     def maximumSize(self) -> QSize:
+        """Get the maximum size of the tooltip
+
+        :return: maximum size
+        """
+
         return QSize(self.__maximum_width, self.maximumHeight())
 
     def setMaximumSize(self, max_size: QSize):
+        """Set the maximum size of the tooltip
+
+        :param max_size: new maximum size
+        """
+
         self.__maximum_width = max_size.width()
         self.setMaximumHeight(max_size.height())
         self.__update_ui()
 
     def maximumWidth(self) -> int:
+        """Get the maximum width of the tooltip
+
+        :return: maximum width
+        """
+
         return self.__maximum_width
 
     def setMaximumWidth(self, max_width: int):
+        """Set the maximum width of the tooltip
+
+        :param max_width: new maximum width
+        """
+
         self.__maximum_width = max_width
         self.__update_ui()
 
     def show(self):
+        """Start the process of showing the tooltip"""
+
         self.__duration_timer.stop()
         self.__update_ui()
         self.__start_show_delay()
 
     def hide(self):
+        """Start the process of hiding the tooltip"""
+
         self.__start_hide_delay()
 
     def update(self):
+        """Update the tooltip"""
+
         self.__update_ui()
         super().update()
 
     def __start_show_delay(self):
+        """Start a delay that will start the fade in animation when finished"""
+
         self.__hide_delay_timer.stop()
         self.__show_delay_timer.start()
 
     def __start_fade_in(self):
+        """Start the fade in animation"""
+
+        # Emit shown signal if currently hidden
         if self.__current_opacity == 0.0:
             self.shown.emit()
 
+        # Start fade in animation and show
         self.__fade_in_animation.setStartValue(self.__current_opacity)
         self.__fade_in_animation.setEndValue(1)
         self.__fade_in_animation.start()
         super().show()
 
     def __start_duration_timer(self):
+        """Start the duration timer that hides the tooltip after
+         a specific amount of time if enabled"""
+
         if self.__duration != 0:
             self.__duration_timer.start()
 
     def __start_hide_delay(self):
+        """Start a delay that will start the fade out animation when finished"""
+
         self.__show_delay_timer.stop()
         self.__hide_delay_timer.start()
 
     def __start_fade_out(self):
+        """Start the fade out animation"""
+
         self.__fade_out_animation.setStartValue(self.__current_opacity)
         self.__fade_out_animation.setEndValue(0)
         self.__fade_out_animation.start()
 
     def __hide(self):
+        """Hide the tooltip"""
+
         self.__duration_timer.stop()
         super().hide()
         self.hidden.emit()
 
-    def __update_current_opacity(self, value):
+    def __update_current_opacity(self, value: float):
+        """Update the current_opacity attribute with the new value of the animation
+
+        :param value: value received by the valueChanged event
+        """
+
         self.__current_opacity = value
 
     def __update_stylesheet(self):
+        """Update the stylesheet of the widgets that are part of the tooltip"""
+
         self.__tooltip_body.setStyleSheet(
             'background: {}; '
             'border-radius: {}px; '
@@ -463,6 +834,8 @@ class Tooltip(TooltipInterface):
         )
 
     def __update_ui(self):
+        """Update the UI of the tooltip"""
+
         if not self.__widget:
             return
 
@@ -571,8 +944,8 @@ class Tooltip(TooltipInterface):
         self.__text_widget.move(self.__margins.left(), self.__margins.top())
         self.__tooltip_body.resize(body_size)
 
-        # Adjust positions and sizes for drop shadow if enabled
         if self.__drop_shadow_enabled:
+            # Adjust positions and sizes for drop shadow if enabled
             self.__tooltip_body.move(
                 tooltip_body_pos.x() + DROP_SHADOW_SIZE, tooltip_body_pos.y() + DROP_SHADOW_SIZE
             )
@@ -598,6 +971,8 @@ class Tooltip(TooltipInterface):
             self.__drop_shadow_widget.setVisible(False)
 
     def __install_event_filters(self):
+        """Install / reinstall event filters on widget and its parents"""
+
         self.__remove_event_filters()
         if not self.__widget:
             return
@@ -608,6 +983,8 @@ class Tooltip(TooltipInterface):
             widget.installEventFilter(self)
 
     def __remove_event_filters(self):
+        """Remove installed event filters"""
+
         for widget in self.__watched_widgets:
             widget.removeEventFilter(self)
         self.__watched_widgets.clear()

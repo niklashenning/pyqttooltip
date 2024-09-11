@@ -25,6 +25,8 @@ class DropShadow(QWidget):
             self.layers.append(layer)
 
     def update(self):
+        """Update the stylesheets of the layers"""
+
         for i, layer in enumerate(self.layers):
             self.__apply_layer_stylesheet(layer, i)
 
@@ -44,6 +46,12 @@ class DropShadow(QWidget):
             layer.move(i, i)
 
     def __apply_layer_stylesheet(self, layer: QWidget, index: int):
+        """Apply stylesheet to a layer widget
+
+        :param layer: layer to apply the stylesheet to
+        :param index: index of the layer
+        """
+
         layer.setStyleSheet(
             'background: rgba(0, 0, 0, {}); '
             'border-radius: 8px;'
