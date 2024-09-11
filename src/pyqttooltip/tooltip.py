@@ -959,8 +959,8 @@ class Tooltip(TooltipInterface):
             self.__drop_shadow_widget.update()
             self.__drop_shadow_widget.setVisible(True)
             self.setFixedSize(
-                max(size.width(), self.__drop_shadow_widget.width() + tooltip_pos.x()),
-                max(size.height(), self.__drop_shadow_widget.height() + tooltip_pos.y())
+                max(size.width(), self.__drop_shadow_widget.width() + tooltip_body_pos.x()),
+                max(size.height(), self.__drop_shadow_widget.height() + tooltip_body_pos.y())
             )
             self.move(tooltip_pos.x() - DROP_SHADOW_SIZE, tooltip_pos.y() - DROP_SHADOW_SIZE)
         else:
