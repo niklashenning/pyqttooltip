@@ -1,7 +1,6 @@
-import math
 from qtpy.QtWidgets import QWidget
-from qtpy.QtGui import QPainter, QPen, QPainterPath, QTransform
-from qtpy.QtCore import Qt, QPoint, QEvent
+from qtpy.QtGui import QPainter
+from qtpy.QtCore import QPoint, QEvent
 from .tooltip_interface import TooltipInterface
 from .enums import TooltipPlacement
 

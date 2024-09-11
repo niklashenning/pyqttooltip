@@ -58,7 +58,7 @@ class Tooltip(TooltipInterface):
         self.__font = QFont('Arial', 9, QFont.Weight.Bold)
         self.__margins = QMargins(12, 8, 12, 7)
         self.__drop_shadow_enabled = True
-        self.__drop_shadow_strength = 2.5
+        self.__drop_shadow_strength = 2.0
         self.__showing_on_disabled = False
         self.__maximum_width = QWIDGETSIZE_MAX
 
@@ -304,7 +304,7 @@ class Tooltip(TooltipInterface):
 
         return self.__offsets
 
-    def getOffset(self, placement: TooltipPlacement) -> QPoint:
+    def getOffsetByPlacement(self, placement: TooltipPlacement) -> QPoint:
         """Get a specific offset of the tooltip
 
         :param placement: placement to get the offset for
@@ -323,7 +323,7 @@ class Tooltip(TooltipInterface):
             self.__offsets[placement] = offset
         self.__update_ui()
 
-    def setOffset(self, placement: TooltipPlacement, offset: QPoint):
+    def setOffsetByPlacement(self, placement: TooltipPlacement, offset: QPoint):
         """Set a specific offset of the tooltip
 
         :param placement: placement to set the offset for
@@ -333,7 +333,7 @@ class Tooltip(TooltipInterface):
         self.__offsets[placement] = offset
         self.__update_ui()
 
-    def setOffsetAll(self, offset: QPoint):
+    def setOffsetsAll(self, offset: QPoint):
         """Set the offsets of all the placements to a value
 
         :param offset: new offset for all the placements
