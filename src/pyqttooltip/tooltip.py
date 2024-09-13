@@ -408,7 +408,7 @@ class Tooltip(TooltipInterface):
         :param duration: new duration
         """
 
-        self.__fade_in_duration = duration
+        self.__fade_out_duration = duration
         self.__fade_out_animation.setDuration(duration)
 
     def getFadeInEasingCurve(self) -> QEasingCurve.Type:
