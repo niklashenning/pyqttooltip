@@ -417,7 +417,7 @@ class Tooltip(TooltipInterface):
         :return: easing curve
         """
 
-        return self.__fade_out_easing_curve
+        return self.__fade_in_easing_curve
 
     def setFadeInEasingCurve(self, easing_curve: QEasingCurve.Type | None):
         """Set the easing curve of the fade in animation
