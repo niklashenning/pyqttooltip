@@ -9,6 +9,10 @@ def test_get_top_level_parent(qtbot):
     widget = QWidget(window)
     button1 = QPushButton(widget)
     button2 = QPushButton()
+    qtbot.addWidget(window)
+    qtbot.addWidget(widget)
+    qtbot.addWidget(button1)
+    qtbot.addWidget(button2)
 
     assert Utils.get_top_level_parent(button1) == window
     assert Utils.get_top_level_parent(button2) == button2
@@ -21,6 +25,10 @@ def test_get_parents(qtbot):
     widget = QWidget(window)
     button1 = QPushButton(widget)
     button2 = QPushButton()
+    qtbot.addWidget(window)
+    qtbot.addWidget(widget)
+    qtbot.addWidget(button1)
+    qtbot.addWidget(button2)
 
     assert Utils.get_parents(button1) == [widget, window]
     assert Utils.get_parents(button2) == []

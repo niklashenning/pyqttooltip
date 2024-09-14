@@ -15,6 +15,8 @@ def test_get_optimal_placement(qtbot):
         TooltipPlacement.TOP:    QPoint(0, 0),
         TooltipPlacement.BOTTOM: QPoint(0, 0)
     }
+    qtbot.addWidget(window)
+    qtbot.addWidget(button)
 
     # Left placement
     window.setFixedSize(500, 250)
@@ -49,6 +51,8 @@ def test_get_fallback_placement(qtbot):
         TooltipPlacement.TOP:    QPoint(0, 0),
         TooltipPlacement.BOTTOM: QPoint(0, 0)
     }
+    qtbot.addWidget(window)
+    qtbot.addWidget(button)
 
     # Primary placement left -> fallback placement right
     button.move(0, 15)
