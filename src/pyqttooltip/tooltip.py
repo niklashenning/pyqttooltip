@@ -64,7 +64,7 @@ class Tooltip(TooltipInterface):
 
         self.__actual_placement = None
         self.__current_opacity = 0.0
-        self.__watched_widgets = [self.__widget] if self.__widget else []
+        self.__watched_widgets = []
 
         # Widget settings
         self.setWindowFlags(

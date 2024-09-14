@@ -51,14 +51,14 @@ class PlacementUtils:
         return optimal_placement
 
     @staticmethod
-    def get_fallback_placement(widget: QWidget, current_placement: TooltipPlacement, fallback_placements:
+    def get_fallback_placement(widget: QWidget, primary_placement: TooltipPlacement, fallback_placements:
                                list[TooltipPlacement], size: QSize, triangle_size: int, offsets:
                                dict[TooltipPlacement, QPoint]) -> TooltipPlacement | None:
         """Calculate fallback placement if the current placement would
         lead to a tooltip that doesn't entirely fit on the screen
         
         :param widget: widget of the tooltip
-        :param current_placement: current placement of the tooltip
+        :param primary_placement: primary placement of the tooltip
         :param fallback_placements: fallback placements that are available
         :param size: size of the tooltip
         :param triangle_size: size of the triangle
@@ -67,7 +67,7 @@ class PlacementUtils:
         """
 
         tooltip_rect = PlacementUtils.__get_tooltip_rect(
-            widget, current_placement, size, triangle_size, offsets
+            widget, primary_placement, size, triangle_size, offsets
         )
 
         # Return None if current placement is valid
@@ -76,7 +76,7 @@ class PlacementUtils:
 
         # Check all fallback placements and return first valid placement
         for placement in fallback_placements:
-            if placement == current_placement or placement == TooltipPlacement.AUTO:
+            if placement == primary_placement or placement == TooltipPlacement.AUTO:
                 continue
             tooltip_rect = PlacementUtils.__get_tooltip_rect(
                 widget, placement, size, triangle_size, offsets
