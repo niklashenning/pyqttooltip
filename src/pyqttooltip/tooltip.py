@@ -87,6 +87,7 @@ class Tooltip(TooltipInterface):
         self.__text_widget = QLabel(self.__tooltip_body)
         self.__text_widget.setText(text)
         self.__text_widget.setFont(self.__font)
+        self.__text_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Init delay timers
         self.__show_delay_timer = QTimer(self)
