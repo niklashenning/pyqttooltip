@@ -135,12 +135,12 @@ class Tooltip(TooltipInterface):
         if event.type() == event.Type.HoverEnter and watched == self.__widget:
             # Mouse enters widget
             if self.__widget and self.__widget.isEnabled():
-                self.show()
+                self.show(delay=True)
             elif self.__widget and not self.__widget.isEnabled() and self.__showing_on_disabled:
-                self.show()
+                self.show(delay=True)
         elif event.type() == event.Type.HoverLeave and watched == self.__widget:
             # Mouse leaves widget
-            self.hide()
+            self.hide(delay=True)
 
         # Widget or parent moved, resized, shown or hidden
         if (event.type() == event.Type.Move or event.type() == event.Type.Resize
@@ -745,17 +745,30 @@ class Tooltip(TooltipInterface):
         self.__maximum_width = max_width
         self.__update_ui()
 
-    def show(self):
-        """Start the process of showing the tooltip"""
+    def show(self, delay: bool = False):
+        """Start the process of showing the tooltip
+
+        :param delay: whether the tooltip should be shown with the delay (default: False)
+        """
 
         self.__duration_timer.stop()
         self.__update_ui()
-        self.__start_show_delay()
 
-    def hide(self):
-        """Start the process of hiding the tooltip"""
+        if delay:
+            self.__start_show_delay()
+        else:
+            self.__start_fade_in()
 
-        self.__start_hide_delay()
+    def hide(self, delay: bool = False):
+        """Start the process of hiding the tooltip
+
+        :param delay: whether the tooltip should be hidden with the delay (default: False)
+        """
+
+        if delay:
+            self.__start_hide_delay()
+        else:
+            self.__start_fade_out()
 
     def update(self):
         """Update the tooltip"""
