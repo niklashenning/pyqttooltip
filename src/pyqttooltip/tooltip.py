@@ -1,5 +1,5 @@
 import math
-from qtpy.QtWidgets import QWidget, QLabel, QGraphicsOpacityEffect, QWIDGETSIZE_MAX
+from qtpy.QtWidgets import QWidget, QLabel, QGraphicsOpacityEffect
 from qtpy.QtCore import (
     Qt, Signal, QMargins, QPoint, QSize, QTimer,
     QPropertyAnimation, QEasingCurve, QEvent, QObject
