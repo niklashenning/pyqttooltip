@@ -393,6 +393,7 @@ class Tooltip(TooltipInterface):
         """
 
         self.__fade_in_duration = duration
+        self.__fade_in_animation.setStartValue(self.__current_opacity)
         self.__fade_in_animation.setDuration(duration)
 
     def getFadeOutDuration(self) -> int:
@@ -410,6 +411,7 @@ class Tooltip(TooltipInterface):
         """
 
         self.__fade_out_duration = duration
+        self.__fade_out_animation.setStartValue(self.__current_opacity)
         self.__fade_out_animation.setDuration(duration)
 
     def getFadeInEasingCurve(self) -> QEasingCurve.Type:
