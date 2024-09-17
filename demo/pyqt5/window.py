@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QColor
-from src.pyqttooltip import Tooltip, TooltipPlacement
+from pyqttooltip import Tooltip, TooltipPlacement
 
 
 class Window(QMainWindow):
