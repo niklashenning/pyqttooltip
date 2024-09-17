@@ -4,7 +4,7 @@
 
 A modern and fully customizable tooltip library for PyQt and PySide
 
-![pyqttooltip](https://github.com/user-attachments/assets/a0c622a4-9e85-480f-b06e-733af07005a5)
+![pyqttooltip](https://github.com/user-attachments/assets/0313ffc7-560b-4665-a652-e1e2601fcbaa)
 
 ## Features
 - Fixed and automatic placement
