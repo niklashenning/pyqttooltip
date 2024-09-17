@@ -221,7 +221,7 @@ tooltip.setOpacity(0.8)  # Default: 1.0
 
 ## Demo
 
-[VIDEO]
+https://github.com/user-attachments/assets/fa768d30-f3cc-4883-aa8b-fed3a8824b23
 
 The demos for PyQt5, PyQt6, and PySide6 can be found in the [demo](https://github.com/niklashenning/pyqttooltip/blob/master/demo) folder.
 
