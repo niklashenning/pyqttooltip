@@ -1,0 +1,4 @@
+[run]
+omit =
+    tests/*
+    src/pyqttooltip/tooltip_interface.py
